@@ -1,9 +1,22 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { Nunito, Lora } from "next/font/google";
 import "./globals.css";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
+  subsets: ["latin"],
+});
+
+const nunito = Nunito({
+  variable: "--font-nunito-sans",
+  weight: ["400", "700"],
+  subsets: ["latin"],
+});
+
+const lora = Lora({
+  variable: "--font-lora",
+  weight: ["400", "700"],
   subsets: ["latin"],
 });
 
@@ -24,9 +37,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+      <body className={`${lora.variable} ${nunito.variable} antialiased`}>
         {children}
       </body>
     </html>
