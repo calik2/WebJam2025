@@ -1,12 +1,6 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
 import { Nunito, Lora } from "next/font/google";
 import "./globals.css";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
 
 const nunito = Nunito({
   variable: "--font-nunito-sans",
@@ -17,11 +11,6 @@ const nunito = Nunito({
 const lora = Lora({
   variable: "--font-lora",
   weight: ["400", "700"],
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
   subsets: ["latin"],
 });
 
