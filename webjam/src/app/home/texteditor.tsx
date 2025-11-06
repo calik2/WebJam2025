@@ -36,10 +36,15 @@ export default function PaperTiptap() {
     editorProps: {
       attributes: {
         class:
-          "ProseMirror justify-center items-center outline-none text-4xl font-[var(--font-lora)] !font-[var(--font-lora)] leading-relaxed p-10 ",
+          "ProseMirror justify-left items-left outline-none text-4xl font-[var(--font-lora)] !font-[var(--font-lora)] leading-relaxed p-10 ",
         style: `         
-          line-height: 28px;
-          color: #222;
+          color: #77777B;
+          font-family: Lora;
+          font-size 40px;
+          font-style: normal;
+          font-weight: 400;
+          line-height: 51px;
+          text-align: left;
         `,
       },
     },
@@ -86,7 +91,7 @@ export default function PaperTiptap() {
 
   return (
     <>
-      <div className="flex justify-center items-center bg-[#f5f2e9] p-8 max-w-screen">
+      <div className="flex justify-left items-left bg-[#f5f2e9] p-8 max-w-screen">
         <EditorContent editor={editor} />
       </div>
       <div className="flex justify-center space-x-4 p-4 text-xl">
