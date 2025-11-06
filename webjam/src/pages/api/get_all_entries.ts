@@ -13,6 +13,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   if (auth_error || !data?.user) {
     redirect('/login')
   }
+  console.log(data.user.id)
 
   
   const { min_date, max_date, top } = req.query;
