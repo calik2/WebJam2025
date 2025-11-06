@@ -1,7 +1,17 @@
 import Link from "next/link";
 import StickyNote from "./stickynote";
 
-export default function NotesPage() {
+export default async function NotesPage() {
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+  const res = await fetch(`${baseUrl}/api/get_all_entries`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    }
+  )
+  const data = await res.json();
+  const notes = data.body ?? [];
   return (
     <>
       <nav className="flex items-center justify-end font-[var(--font-sans)] p-4 text-xl">
@@ -18,8 +28,11 @@ export default function NotesPage() {
       <div className="flex p-8 ">
         <h1 className="text-3xl font-semibold">Your Notes of Learning</h1>
       </div>
-
-      <StickyNote />
+      <div className="columns-4 sm:columns-2 lg:columns-4 gap-6 p-10">
+        {notes.map((note, index) => (
+          <StickyNote key={index} date={note.date} content={note.description} />
+        ))}
+      </div>
     </>
   );
 }

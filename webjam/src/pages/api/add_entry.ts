@@ -17,6 +17,7 @@ export default async function add_entry(req: NextApiRequest, res: NextApiRespons
 
     if (error) {
         res.status(500).json({ error: error.message })
+        console.log(error)
         return
     }
 
