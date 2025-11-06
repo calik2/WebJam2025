@@ -1,4 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
+import { redirect } from 'next/navigation'
 import createClient from '@/utils/supabase/api'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -7,13 +8,19 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return
   }
   const supabase = createClient(req, res)
+
+  const { data, error: auth_error } = await supabase.auth.getUser()
+  if (auth_error || !data?.user) {
+    redirect('/login')
+  }
+
   
   const { min_date, max_date, top } = req.query;
 
   let query = supabase
       .from("entries")
       .select()
-      .eq('uid', 'ff47c2bd-3de5-4daa-a782-655a8e1a09a8');
+      .eq('uid', data.user.id);
 
   if (min_date !== undefined)
   {

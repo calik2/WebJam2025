@@ -7,5 +7,5 @@ import { redirect } from "next/navigation";
 // with time, make a sign in page here before homepage
 // need to make this look nice
 export default function SignIn() {
-  redirect("/home");
+  redirect("/login");
 }
