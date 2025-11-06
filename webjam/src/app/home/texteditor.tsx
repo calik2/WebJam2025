@@ -92,7 +92,8 @@ export default function PaperTiptap() {
           }
         )
         const data = await res.json();
-      } else
+      } 
+      else
       {
         const res = await fetch(`${baseUrl}/api/add_entry`, {
             method: 'POST',
