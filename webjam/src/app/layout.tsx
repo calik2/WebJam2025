@@ -26,7 +26,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${lora.variable} ${nunito.variable} antialiased`}>
+      <body
+        className={`bg-[url('/images/notebook-paper.jpg')] bg-cover bg-center bg-fixed ${lora.variable} ${nunito.variable} antialiased`}
+      >
         {children}
       </body>
     </html>

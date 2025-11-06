@@ -1,28 +1,38 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
+  --background-image: url('/background.svg');
   --foreground: #171717;
   --font-sans: 'Nunito', sans-serif;
-  --font-sans: 'Lora', serif;
+  --font-serif: 'Lora', serif;
+}
+
+.bg-custom {
+  background-image: var(--background-image);
+  background-size: cover;
+  background-position: center;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  /* --color-background: var(--background-image); */
+  /* --color-foreground: var(--foreground); */
   /* --font-sans: var(--font-nunito-sans); */
   /* --font-serif: var(--font-lora); */
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #f5f2e9;
+    --background: var(--background-image);
     --foreground: #000000;
   }
 }
 
+html {
+  background: var(--background-image);
+}
+
 body {
-  background: var(--background);
+  background: var(--background-image);
   color: var(--foreground);
   font-family: var(--font-lora), var(--font-nunito-sans), sans-serif;
 }
@@ -33,7 +43,6 @@ body {
 }
 
 .ProseMirror p.is-editor-empty:first-child::before {
-  color: #9ca3af; /* Tailwind gray-400 */
   content: attr(data-placeholder);
   float: left;
   height: 0;

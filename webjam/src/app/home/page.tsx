@@ -6,7 +6,6 @@ import PaperTiptap from "./texteditor";
 
 export default function Homepage() {
   // Load from localStorage on mount
-  const date = new Date();
 
   return (
     <>
@@ -23,14 +22,7 @@ export default function Homepage() {
       </nav>
       {/* want this to be properly centered, also want the date above the  */}
 
-      <div className=" justify-center items-center">
-        <div className="text-center my-8 text-xl font-semibold font-[var(--font-sans)]">
-          {date.toLocaleDateString(undefined, {
-            year: "numeric",
-            month: "long",
-            day: "numeric",
-          })}
-        </div>
+      <div>
         <PaperTiptap />
       </div>
     </>

@@ -7,7 +7,9 @@ import StarterKit from "@tiptap/starter-kit";
 import Placeholder from "@tiptap/extension-placeholder";
 import { useEffect, useState } from "react";
 
-export default function PaperTiptap() {
+export default function HeaderAndBody() {
+  const date = new Date();
+
   const [isEditable, setIsEditable] = useState(true);
 
   const [labels, setLabels] = useState<string[]>(() => {
@@ -19,11 +21,13 @@ export default function PaperTiptap() {
 
   // Load from localStorage
   const savedContent =
-    typeof window !== "undefined" ? localStorage.getItem("paper-tiptap") : "";
+    typeof window !== "undefined" ? localStorage.getItem("body-tiptap") : "";
+  const savedHeader =
+    typeof window !== "undefined" ? localStorage.getItem("header-tiptap") : "";
   const initialContent =
     savedContent && savedContent.trim() !== "<p></p>" ? savedContent : "";
 
-  const editor = useEditor({
+  const bodyeditor = useEditor({
     extensions: [
       StarterKit,
       Placeholder.configure({
@@ -50,32 +54,55 @@ export default function PaperTiptap() {
     },
     onUpdate: ({ editor }) => {
       const html = editor.getHTML();
-      localStorage.setItem("paper-tiptap", html);
+      localStorage.setItem("body-tiptap", html);
+    },
+  });
+
+  const headereditor = useEditor({
+    extensions: [
+      StarterKit,
+      Placeholder.configure({
+        placeholder: "Title your learning...",
+      }),
+    ],
+    editable: isEditable,
+    content: savedHeader && savedHeader.trim() !== "<p></p>" ? savedHeader : "",
+    immediatelyRender: false,
+    editorProps: {
+      attributes: {
+        class:
+          "ProseMirror justify-left items-left outline-none text-4xl font-[var(--font-lora)] !font-[var(--font-lora)] leading-relaxed p-10 ",
+        style: `         
+          color: #77777B;
+          font-family: Lora;
+          font-size: 25px;
+          font-style: normal;
+          font-weight: 400;
+          line-height: 51px;
+          text-align: left;
+        `,
+      },
+    },
+    onUpdate: ({ editor }) => {
+      localStorage.setItem("header-tiptap", editor.getHTML());
     },
   });
 
   useEffect(() => {
-    if (editor) {
-      editor.setEditable(isEditable);
-    }
-  }, [editor, isEditable]);
+    if (headereditor) headereditor.setEditable(isEditable);
+    if (bodyeditor) bodyeditor.setEditable(isEditable);
+  }, [isEditable, headereditor, bodyeditor]);
 
   const handleSave = () => {
-    if (editor) {
-      const content = editor.getHTML();
-      localStorage.setItem("paper-tiptap", content); // save content
+    if (bodyeditor) {
+      localStorage.setItem("body-tiptap", bodyeditor.getHTML()); // save content
+      localStorage.setItem("header-tiptap", headereditor?.getHTML() || ""); // save content
       setIsEditable(false); // lock editor
-      console.log("Saved content:", content);
     }
   };
 
   const handleEdit = () => {
-    if (editor) {
-      const content = editor.getHTML();
-
-      setIsEditable(true); // unlock editor
-      console.log("edit content:", content);
-    }
+    setIsEditable(true); // unlock editor
   };
 
   const handleTag = () => {
@@ -91,8 +118,15 @@ export default function PaperTiptap() {
 
   return (
     <>
-      <div className="flex justify-left items-left bg-[#f5f2e9] p-8 max-w-screen">
-        <EditorContent editor={editor} />
+      <div className="flex flex-col justify-left items-left p-2 max-w-screen">
+        <div className="text-center my-8 text-xl font-semibold font-[var(--font-sans)]">
+          {date.toLocaleDateString(undefined, {
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+          })}
+        </div>
+        <EditorContent editor={bodyeditor} />
       </div>
       <div className="flex justify-center space-x-4 p-4 text-xl">
         {isEditable ? (
@@ -111,6 +145,11 @@ export default function PaperTiptap() {
             </button>
           </>
         )}
+      </div>
+      <div className="fixed bottom-0 left-0 w-full p-4 z-50">
+        <div className="max-w-3xl ">
+          <EditorContent editor={headereditor} />
+        </div>
       </div>
     </>
   );
