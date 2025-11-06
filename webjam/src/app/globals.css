@@ -1,26 +1,53 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
+  --background-image: url('/background.svg');
   --foreground: #171717;
+  --font-sans: 'Nunito', sans-serif;
+  --font-serif: 'Lora', serif;
+}
+
+.bg-custom {
+  background-image: var(--background-image);
+  background-size: cover;
+  background-position: center;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  /* --color-background: var(--background-image); */
+  /* --color-foreground: var(--foreground); */
+  /* --font-sans: var(--font-nunito-sans); */
+  /* --font-serif: var(--font-lora); */
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: var(--background-image);
+    --foreground: #000000;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+html {
+  background: var(--background-image);
 }
+
+body {
+  background: var(--background-image);
+  color: var(--foreground);
+  font-family: var(--font-lora), var(--font-nunito-sans), sans-serif;
+}
+
+.ProseMirror {
+  outline: none;
+  font-family: var(--font-lora), serif;
+}
+
+.ProseMirror p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  pointer-events: none;
+  font-family: var(--font-lora), serif;
+  
+}
+
