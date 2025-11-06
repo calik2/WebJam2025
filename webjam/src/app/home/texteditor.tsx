@@ -109,12 +109,16 @@ export default function HeaderAndBody() {
       localStorage.setItem("header-tiptap", headereditor?.getHTML() || ""); // save content
       setIsEditable(false); // lock editor
       setTagsShown(true);
+      bodyeditor.view.dom.style.color = "#171717";
     }
+    if (headereditor) headereditor.view.dom.style.color = "#171717";
   };
 
   const handleEdit = () => {
     setIsEditable(true); // unlock editor
     setTagsShown(false);
+    if (headereditor) headereditor.view.dom.style.color = "#77777B";
+    if (bodyeditor) bodyeditor.view.dom.style.color = "#77777B";
   };
 
   const handleAddTag = () => {
@@ -141,79 +145,81 @@ export default function HeaderAndBody() {
 
   return (
     <>
-      <div className="flex flex-col justify-left items-left p-2 max-w-1200">
-        <div className="my-8 text-xl font-semibold font-[var(--font-sans)]">
+      <div className="flex flex-col justify-center items-start min-h-screen px-8 py-4 space-y-6 rounded-lg max-w-4xl mx-auto my-10">
+        <div className="text-xl font-semibold font-[var(--font-sans)]">
           {date.toLocaleDateString(undefined, {
             year: "numeric",
             month: "long",
             day: "numeric",
           })}
         </div>
-        <EditorContent editor={bodyeditor} />
-      </div>
-      <div className="flex space-x-4 justify-left items-left max-w-4xl p-4 text-xl">
-        {isEditable ? (
-          <>
-            <button className="px-4 py-2 rounded-md" onClick={handleSave}>
-              Save
-            </button>
-          </>
-        ) : (
-          <>
-            <button className="px-4 py-2 rounded-md " onClick={handleEdit}>
-              Edit
-            </button>
-          </>
-        )}
-      </div>
-      <div className="fixed bottom-20 left-0 w-full p-4 z-50">
-        {tagsShown && (
-          <div className="flex flex-col items-center space-y-3">
-            {!selectedTag ? (
-              <>
-                <div className="flex flex-wrap justify-center gap-3">
-                  {labels.length > 0 ? (
-                    labels.map((label, i) => (
-                      <button
-                        key={i}
-                        onClick={() => handleSelectTag(label)}
-                        className="px-4 py-2  rounded-xl hover:bg-gray-300 dark:hover:bg-gray-700 transition-all"
-                      >
-                        {label}
-                      </button>
-                    ))
-                  ) : (
-                    <div className="text-gray-500 italic">
-                      No tags yet — create one below.
-                    </div>
-                  )}
-                </div>
+        <div className="w-full max-w-4xl ">
+          <EditorContent editor={bodyeditor} />
+        </div>
+        <div className="flex justify-between items-end space-y-4 w-full max-w-4xl p-4 text-xl">
+          {isEditable ? (
+            <>
+              <button className="px-4 py-2 rounded-md" onClick={handleSave}>
+                Save
+              </button>
+            </>
+          ) : (
+            <>
+              <button className="px-4 py-2 rounded-md " onClick={handleEdit}>
+                Edit
+              </button>
+            </>
+          )}
+          <div className=" flex-1 px-8 text-right">
+            {tagsShown && (
+              <div className="flex flex-col items-end space-y-3">
+                {!selectedTag ? (
+                  <>
+                    <div className="flex flex-wrap justify-center gap-3">
+                      {labels.length > 0 ? (
+                        labels.map((label, i) => (
+                          <button
+                            key={i}
+                            onClick={() => handleSelectTag(label)}
+                            className="px-4 py-2  rounded-xl hover:bg-gray-300 dark:hover:bg-gray-700 transition-all"
+                          >
+                            {label}
+                          </button>
+                        ))
+                      ) : (
+                        <div className="text-gray-500 italic">
+                          No tags yet — create one below.
+                        </div>
+                      )}
 
-                <div className="flex space-x-2">
-                  <input
-                    value={newTag}
-                    onChange={(e) => setNewTag(e.target.value)}
-                    placeholder="New tag incoming..."
-                    className="border rounded-md px-3 py-1"
+                      <div className="flex space-x-2">
+                        <input
+                          value={newTag}
+                          onChange={(e) => setNewTag(e.target.value)}
+                          placeholder="New tag incoming..."
+                          className="border rounded-md px-3 py-1"
+                        />
+                        <button
+                          onClick={handleAddTag}
+                          className="bg-lightgray-500 opacity-75 px-3 py-1 rounded-md"
+                        >
+                          Add
+                        </button>
+                      </div>
+                    </div>
+                  </>
+                ) : (
+                  <Tag
+                    label={selectedTag}
+                    onClick={() => handleDeleteTag(selectedTag)}
                   />
-                  <button
-                    onClick={handleAddTag}
-                    className="bg-blue-500 text-white px-3 py-1 rounded-md"
-                  >
-                    Add
-                  </button>
-                </div>
-              </>
-            ) : (
-              <Tag
-                label={selectedTag}
-                onClick={() => handleDeleteTag(selectedTag)}
-              />
+                )}
+              </div>
             )}
           </div>
-        )}
+        </div>
 
-        <div className="max-w-3xl ">
+        <div className="w-full max-w-4xl">
           <EditorContent editor={headereditor} />
         </div>
       </div>
