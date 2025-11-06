@@ -38,8 +38,12 @@ export default function PaperTiptap() {
         class:
           "ProseMirror justify-center items-center outline-none text-4xl font-[var(--font-lora)] !font-[var(--font-lora)] leading-relaxed p-10 ",
         style: `         
-          line-height: 28px;
-          color: #222;
+          color: #77777B;
+          font-family: Lora;
+          font-size 40px;
+          font-style: normal;
+          font-weight: 400;
+          line-height: 51px;
         `,
       },
     },
