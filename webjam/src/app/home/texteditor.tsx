@@ -5,8 +5,18 @@
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Placeholder from "@tiptap/extension-placeholder";
+import { useEffect, useState } from "react";
 
 export default function PaperTiptap() {
+  const [isEditable, setIsEditable] = useState(true);
+
+  const [labels, setLabels] = useState<string[]>(() => {
+    if (typeof window !== "undefined") {
+      return JSON.parse(localStorage.getItem("labels") || "[]");
+    }
+    return [];
+  });
+
   // Load from localStorage
   const savedContent =
     typeof window !== "undefined" ? localStorage.getItem("paper-tiptap") : "";
@@ -20,6 +30,7 @@ export default function PaperTiptap() {
         placeholder: "What did I learn today?",
       }),
     ],
+    editable: isEditable,
     content: initialContent,
     immediatelyRender: false,
     editorProps: {
@@ -38,11 +49,17 @@ export default function PaperTiptap() {
     },
   });
 
+  useEffect(() => {
+    if (editor) {
+      editor.setEditable(isEditable);
+    }
+  }, [editor, isEditable]);
+
   const handleSave = () => {
     if (editor) {
       const content = editor.getHTML();
       localStorage.setItem("paper-tiptap", content); // save content
-      editor.setEditable(false); // lock editor
+      setIsEditable(false); // lock editor
       console.log("Saved content:", content);
     }
   };
@@ -51,9 +68,20 @@ export default function PaperTiptap() {
     if (editor) {
       const content = editor.getHTML();
 
-      editor.setEditable(true); // lock editor
+      setIsEditable(true); // unlock editor
       console.log("edit content:", content);
     }
+  };
+
+  const handleTag = () => {
+    const newLabel = prompt("Enter a tag/label for this note:");
+    if (!newLabel) return;
+
+    const updatedLabels = [...new Set([...labels, newLabel.trim()])];
+    setLabels(updatedLabels);
+    localStorage.setItem("labels", JSON.stringify(updatedLabels));
+
+    alert(`Tag "${newLabel}" saved!`);
   };
 
   return (
@@ -62,12 +90,22 @@ export default function PaperTiptap() {
         <EditorContent editor={editor} />
       </div>
       <div className="flex justify-center space-x-4 p-4 text-xl">
-        <button className="rounded-md dark:bg-black " onClick={handleSave}>
-          save
-        </button>
-        <button className="rounded-md dark:bg-black" onClick={handleEdit}>
-          edit
-        </button>
+        {isEditable ? (
+          <>
+            <button className="px-4 py-2 rounded-md" onClick={handleSave}>
+              Save
+            </button>
+            <button className="px-4 py-2 rounded-md " onClick={handleTag}>
+              Tag
+            </button>
+          </>
+        ) : (
+          <>
+            <button className="px-4 py-2 rounded-md " onClick={handleEdit}>
+              Edit
+            </button>
+          </>
+        )}
       </div>
     </>
   );

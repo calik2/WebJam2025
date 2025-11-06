@@ -3,26 +3,28 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --font-sans: 'Nunito', sans-serif;
+  --font-sans: 'Lora', serif;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-nunito-sans);
-  --font-serif: var(--font-lora);
+  /* --font-sans: var(--font-nunito-sans); */
+  /* --font-serif: var(--font-lora); */
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #f5f2e9;
-    --foreground: #ededed;
+    --foreground: #000000;
   }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-nunito-sans), var(--font-lora), sans-serif;
+  font-family: var(--font-lora), var(--font-nunito-sans), sans-serif;
 }
 
 .ProseMirror {

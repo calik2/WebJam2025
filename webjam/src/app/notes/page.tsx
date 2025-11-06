@@ -1,17 +1,25 @@
 import Link from "next/link";
+import StickyNote from "./stickynote";
 
 export default function NotesPage() {
   return (
     <>
-      <nav>
+      <nav className="flex items-center justify-end font-[var(--font-sans)] p-4 text-xl">
         {/* Simple navigation links, need to make it look nice */}
-        <Link href="/home">Home</Link> | <Link href="/notes">Notes Page</Link>
+        <ul className="flex space-x-4">
+          <li>
+            <Link href="/home">Home</Link>
+          </li>
+          <li>
+            <Link href="/notes">Notes Page</Link>
+          </li>
+        </ul>
       </nav>
-      <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-        <h1 className="text-3xl font-semibold text-black dark:text-zinc-50">
-          Welcome to the Notes Page!
-        </h1>
+      <div className="flex p-8 ">
+        <h1 className="text-3xl font-semibold">Your Notes of Learning</h1>
       </div>
+
+      <StickyNote />
     </>
   );
 }
