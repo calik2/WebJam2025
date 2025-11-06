@@ -13,6 +13,7 @@ export default function HeaderAndBody() {
 
   const [isEditable, setIsEditable] = useState(true);
   const [tagsShown, setTagsShown] = useState(false);
+  const [isEdit, setIsEdit] = useState(false);
 
   const [labels, setLabels] = useState<string[]>(() => {
     if (typeof window !== "undefined") {
@@ -30,14 +31,25 @@ export default function HeaderAndBody() {
   });
 
   const [newTag, setNewTag] = useState("");
-  const savedContent =
-    typeof window !== "undefined" ? localStorage.getItem("body-tiptap") : "";
   const savedHeader =
     typeof window !== "undefined" ? localStorage.getItem("header-tiptap") : "";
+  // const savedContent =
+  //   typeof window !== "undefined" ? localStorage.getItem("paper-tiptap") : "";
+  // const initialContent =
+  //   savedContent && savedContent.trim() !== "<p></p>" ? savedContent : "";
+    // Load from localStorage
+  const savedContent =
+    typeof window !== "undefined" ? localStorage.getItem("paper-tiptap") : "";
+  const savedDate = 
+    typeof window !== "undefined" ? localStorage.getItem("paper-tiptap-date") : "";
+  const today = new Date().toLocaleDateString();
+  
   const initialContent =
-    savedContent && savedContent.trim() !== "<p></p>" ? savedContent : "";
+    savedContent && savedDate === today && savedContent.trim() !== "<p></p>" 
+      ? savedContent 
+      : "";
 
-  const bodyeditor = useEditor({
+  const editor = useEditor({
     extensions: [
       StarterKit,
       Placeholder.configure({
@@ -100,25 +112,61 @@ export default function HeaderAndBody() {
 
   useEffect(() => {
     if (headereditor) headereditor.setEditable(isEditable);
-    if (bodyeditor) bodyeditor.setEditable(isEditable);
-  }, [isEditable, headereditor, bodyeditor]);
+    if (editor) editor.setEditable(isEditable);
+  }, [isEditable, headereditor, editor]);
 
-  const handleSave = () => {
-    if (bodyeditor) {
-      localStorage.setItem("body-tiptap", bodyeditor.getHTML()); // save content
-      localStorage.setItem("header-tiptap", headereditor?.getHTML() || ""); // save content
+  const handleSave = async () => {
+    if (editor) {
+      const date = new Date()
+
+      const content = editor.getText();
+      localStorage.setItem("paper-tiptap", content); // save content
+      localStorage.setItem("paper-tiptap-date", date.toLocaleDateString()); // save content
       setIsEditable(false); // lock editor
-      setTagsShown(true);
-      bodyeditor.view.dom.style.color = "#171717";
+      console.log("Saved content:", content);
+
+      // Write to DB
+      const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+
+      if (isEdit)
+      {
+        // Write updates to DB
+        const res = await fetch(`${baseUrl}/api/update_entry`, {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({uid: "ff47c2bd-3de5-4daa-a782-655a8e1a09a8", date: date.toLocaleDateString(), title: "N/A", description: content}),
+          }
+        )
+        const data = await res.json();
+      } 
+      else
+      {
+        const res = await fetch(`${baseUrl}/api/add_entry`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({uid: "ff47c2bd-3de5-4daa-a782-655a8e1a09a8", date: date.toLocaleDateString(), title: "N/A", description: content}),
+          }
+        )
+        const data = await res.json();
+      }
+
+      // TODO: IF IT DIDN'T SAVE -> DISPLAY SOME KIND OF MESSAGE
     }
     if (headereditor) headereditor.view.dom.style.color = "#171717";
   };
 
-  const handleEdit = () => {
-    setIsEditable(true); // unlock editor
-    setTagsShown(false);
-    if (headereditor) headereditor.view.dom.style.color = "#77777B";
-    if (bodyeditor) bodyeditor.view.dom.style.color = "#77777B";
+  const handleEdit = async () => {
+    if (editor) {
+      const content = editor.getHTML();
+
+      setIsEditable(true); // unlock editor
+      console.log("edit content:", content);
+      setIsEdit(true);
+    }
   };
 
   const handleAddTag = () => {
@@ -154,7 +202,7 @@ export default function HeaderAndBody() {
           })}
         </div>
         <div className="w-full max-w-4xl ">
-          <EditorContent editor={bodyeditor} />
+          <EditorContent editor={editor} />
         </div>
         <div className="flex justify-between items-end space-y-4 w-full max-w-4xl p-4 text-xl">
           {isEditable ? (
