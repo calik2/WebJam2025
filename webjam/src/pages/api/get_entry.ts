@@ -11,11 +11,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const { date } = req.query;
   
   // TODO: read cookies to get the uid
-  const { data: entry } = await supabase
+  const { data: entry, error } = await supabase
     .from("entries")
     .select()
     .eq('uid', 'ff47c2bd-3de5-4daa-a782-655a8e1a09a8')
     .eq('date', date);  
+  
+  if (error) {
+    res.status(500).json({ error: error.message })
+    return
+  }
+
   res.status(200).json({body: entry})
   
 }
