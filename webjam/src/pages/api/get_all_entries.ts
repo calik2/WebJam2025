@@ -10,11 +10,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const supabase = createClient(req, res)
 
   const { data, error: auth_error } = await supabase.auth.getUser()
+  
   if (auth_error || !data?.user) {
-    redirect('/login')
+    res.status(401).json({ error: "Unauthorized, please log in" })
+    return
   }
-  console.log(data.user.id)
-
   
   const { min_date, max_date, top } = req.query;
 

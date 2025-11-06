@@ -1,5 +1,6 @@
 import Link from "next/link";
 import StickyNote from "./stickynote";
+import { redirect } from "next/navigation";
 
 export default async function NotesPage() {
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
@@ -10,7 +11,12 @@ export default async function NotesPage() {
       },
     }
   )
+  if (res.status == 401) {
+    redirect("/login")
+  }
+
   const data = await res.json();
+  
   const notes = data.body ?? [];
   return (
     <>
