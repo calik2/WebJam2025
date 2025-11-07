@@ -1,16 +1,27 @@
+"use client";
+
 import Link from "next/link";
 import StickyNote from "./stickynote";
+import { useState, useEffect } from "react";
 
-export default async function NotesPage() {
+export default function NotesPage() {
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
-  const res = await fetch(`${baseUrl}/api/get_all_entries`, {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
-  const data = await res.json();
-  const notes = data.body ?? [];
+  const [notes, setNotes] = useState<any[]>([]);
+
+  const getNotes = async () => {
+    const res = await fetch(`${baseUrl}/api/get_all_entries`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    const data = await res.json();
+    setNotes(data.body);
+  };
+  useEffect(() => {
+    getNotes();
+  }, []);
+
   return (
     <>
       <nav
