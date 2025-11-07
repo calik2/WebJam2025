@@ -73,7 +73,7 @@ export default function HeaderAndBody() {
     editorProps: {
       attributes: {
         class:
-          "ProseMirror justify-left items-left outline-none text-4xl font-[var(--font-lora)] !font-[var(--font-lora)] leading-relaxed py-10 pr-10 border border-solid rounded ",
+          "ProseMirror justify-left items-left outline-none text-4xl font-[var(--font-lora)] !font-[var(--font-lora)] leading-relaxed py-10 pr-10",
         style: `         
           color: #77777B;
           font-family: Lora;
@@ -82,7 +82,6 @@ export default function HeaderAndBody() {
           font-weight: 400;
           line-height: 51px;
           text-align: left;
-          border-color: #A5C9FF;
           min-height: 200px;
           width: 105%;
         `,
@@ -107,7 +106,7 @@ export default function HeaderAndBody() {
     editorProps: {
       attributes: {
         class:
-          "ProseMirror inline-flex items-center outline-none font-['Nunito'] !font-['Nunito'] border border-solid rounded ",
+          "ProseMirror inline-flex items-center outline-none font-['Nunito'] !font-['Nunito']",
         style: `         
           color: #77777B;
           font-family: Nunito;
@@ -116,7 +115,6 @@ export default function HeaderAndBody() {
           font-weight: 400;
           line-height: normal;
           text-align: left;
-          border-color: #A5C9FF;
           min-height: auto;
           width: fit-content;
         `,
@@ -144,11 +142,9 @@ export default function HeaderAndBody() {
       setIsEditable(false); // lock editor
       bodyeditor.view.dom.style.color = "#353D48";
       bodyeditor.view.dom.style.fontSize = "40px";
-      bodyeditor.view.dom.style.borderColor = "#A5C9FF";
       if (headereditor) {
         headereditor.view.dom.style.color = "#353D48";
         headereditor.view.dom.style.fontSize = "16px";
-        headereditor.view.dom.style.borderColor = "#A5C9FF";
         headereditor.view.dom.style.fontFamily = "Nunito";
         headereditor.view.dom.style.fontWeight = "400";
       }
@@ -200,13 +196,11 @@ export default function HeaderAndBody() {
       setTagsShown(false);
       bodyeditor.view.dom.style.color = "#77777B";
       bodyeditor.view.dom.style.fontSize = "40px";
-      bodyeditor.view.dom.style.borderColor = "#A5C9FF";
     }
 
     if (headereditor) {
       headereditor.view.dom.style.color = "#77777B";
       headereditor.view.dom.style.fontSize = "16px";
-      headereditor.view.dom.style.borderColor = "#A5C9FF";
       headereditor.view.dom.style.fontFamily = "Nunito";
       headereditor.view.dom.style.fontWeight = "400";
     }
@@ -265,7 +259,7 @@ export default function HeaderAndBody() {
         <div className="flex flex-col gap-4" style={{ width: "105%" }}>
           <div className="flex flex-wrap items-center gap-4">
             <div
-              className="inline-flex items-center border border-[#A5C9FF] rounded text-[16px] text-[#77777B] font-['Nunito'] tracking-wide"
+              className="inline-flex items-center text-[16px] text-[#77777B] font-['Nunito'] tracking-wide"
             >
               {formattedDate}
             </div>

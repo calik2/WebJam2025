@@ -67,7 +67,8 @@ export default function NotesPage() {
                 height: "45px",
                 flexShrink: 0,
                 borderRadius: "30px",
-                background: "#C0BDBD",
+                background: "#F8E1BF",
+                boxShadow: "0 6px 12px rgba(0, 0, 0, 0.08)",
               }}
             ></div>
             <Link
@@ -93,10 +94,11 @@ export default function NotesPage() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 1 }}
       >
-        <div className="flex p-8 ">
-          <h1 className="text-3xl font-semibold">Your Notes of Learning</h1>
-        </div>
-        <div className="columns-4 sm:columns-2 lg:columns-4 gap-6 p-10">
+        <div style={{ height: "90px" }}></div>
+        <div
+          className="columns-4 sm:columns-2 lg:columns-4 p-10"
+          style={{ columnGap: "11px" }}
+        >
           {notes.map((note, index) => (
             <StickyNote
               key={note.id ?? index}
