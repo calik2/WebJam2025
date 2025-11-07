@@ -1,12 +1,9 @@
 "use client";
 
-// note: most of this is from chat, but i can change it i think
-
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Placeholder from "@tiptap/extension-placeholder";
 import { useEffect, useState } from "react";
-import Tag from "./tag";
 
 export default function HeaderAndBody() {
   const date = new Date();
@@ -37,14 +34,6 @@ export default function HeaderAndBody() {
   const [tagsMap, setTagsMap] = useState<{ [tagId: number]: string }>({});
   const [hasText, setHasText] = useState(false);
 
-  // const [labels, setLabels] = useState<string[]>(() => {
-  //   if (typeof window !== "undefined") {
-  //     return JSON.parse(localStorage.getItem("labels") || "[]");
-  //   }
-  //   return [];
-  // });
-
-  const [newTag, setNewTag] = useState("");
   const savedHeader =
     typeof window !== "undefined" ? localStorage.getItem("header-tiptap") : "";
   const savedContent =
@@ -139,6 +128,16 @@ export default function HeaderAndBody() {
     }
   }, [bodyeditor]);
 
+  useEffect(() => {
+    if (entry && entry.description && bodyeditor) {
+      bodyeditor.commands.setContent(entry.description);
+    }
+
+    if (entry && entry.title && headereditor) {
+      headereditor.commands.setContent(entry.title);
+    }
+  }, [entry, bodyeditor, headereditor]);
+
   const handleSave = async (): Promise<void> => {
     if (bodyeditor) {
       const date = new Date();
@@ -159,7 +158,7 @@ export default function HeaderAndBody() {
       }
       console.log("Saved content:", content);
 
-      if (entry.entry_id) {
+      if (entry && entry.entry_id) {
         // Entry exists → update
         const res = await fetch(`${baseUrl}/api/update_entry`, {
           method: "PUT",
@@ -185,7 +184,8 @@ export default function HeaderAndBody() {
         });
         const data = await res.json();
       }
-
+      localStorage.removeItem("paper-tiptap");
+      localStorage.removeItem("header-tiptap");
       // TODO: IF IT DIDN'T SAVE -> DISPLAY SOME KIND OF MESSAGE
       // TODO: NEED TO UPDATE SO THAT AFTER LEAVING HOME AND GOING TO NOTES, IF A NOTE WAS SAVED WE WANT TO SHOW EDIT NOT JUST SAVE
     }
@@ -316,10 +316,116 @@ export default function HeaderAndBody() {
           </div>
         </div>
 
-        <div
-          className="flex justify-between items-end space-y-4 w-full max-w-4xl p-4 text-xl"
-          style={{ transform: "translateX(1103px)" }}
-        >
+        <div className="flex justify-between items-center w-full max-w-4xl p-4 text-xl gap-6">
+          {/* tags */}
+          {tagsShown && (
+              <div className="relative flex flex-col space-y-3">
+                {/* Current tags for this entry */}
+                <div className="flex flex-wrap gap-2">
+                  {entryTags.length > 0 ? (
+                    entryTags.map((tag) => (
+                      <div
+                        key={tag.tag_id}
+                        className="flex items-center px-4 py-1 rounded-full text-[#62beff] border-1 transition duration-200 ease-in-out hover:scale-105"
+                      >
+                        <span>{tagsMap[tag.tag_id]}</span>
+                        {editingTags && (
+                          <button
+                            onClick={() => handleRemoveTagFromEntry(tag.tag_id)}
+                            className="ml-2 hover:text-[#2e74a7]"
+                          >
+                            -
+                          </button>
+                        )}
+                      </div>
+                    ))
+                  ) : (
+                    <span className="text-gray-500 italic">No tags yet</span>
+                  )}
+                  <div className="flex items-center gap-2">
+                      {editingTags && (
+                        <div className="relative w-full max-w-xs">
+                        <input
+                          type="text"
+                          value={newTagName}
+                          onChange={(e) => setNewTagName(e.target.value)}
+                          placeholder="create new tag..."
+                          className="w-full border rounded-full px-3 py-1 pr-16 border-[#E48ABF] focus:border-[#a00a67] focus:outline-none" // extra right padding for button
+                        />
+                        <button
+                          onClick={handleAddNewTag}
+                          className="absolute right-2 top-1/2 -translate-y-1/2 w-6 h-6 flex items-center justify-center rounded-full text-[#E48ABF] 
+                          border-[#E48ABF] border-1 transition duration-300 ease-in-out hover:scale-110">                        
+                          +
+                        </button>
+                      </div>
+                      )}
+                      <button
+                        className="relative overflow-hidden transition duration-300 ease-in-out hover:scale-105 text-[#E48ABF]"
+                        style={{
+                          padding: "4.4px 20px 4.4px 20px",
+                          borderRadius: "36px",
+                          border: "1px solid #E48ABF",
+                          background:
+                            "linear-gradient(180deg, rgba(233, 143, 83, 0.06) 0%, rgba(233, 143, 83, 0) 100%)",
+                          fontFamily: "var(-s-font-nunito-sans), sans-serif",
+                          fontWeight: 400,
+                        }}
+                        onClick={() => setEditingTags(!editingTags)}
+                        data-glow="true"
+                      >
+                        {editingTags ? "done" : "edit tags"}
+                      </button>
+                    </div>
+                </div>
+
+                {/* Panel to manage all tags */}
+                {editingTags && tagsShown && (
+                  <div
+                    className="absolute left-0 mt-2 p-4 rounded z-10"
+                    style={{ width: "100%", top: "100%" }}
+                  >
+                    <div className="flex flex-wrap gap-2">
+                      {allTags.map((tag) => {
+                        const alreadyAdded = entryTags.some((et) => et.tag_id === tag.tag_id);
+                        return (
+                          <div
+                            key={tag.tag_id}
+                            className={`flex items-center px-4 py-1 rounded-full cursor-pointer border-1 transition duration-300 ease-in-out hover:scale-105 ${
+                              alreadyAdded
+                                ? "text-[#bb99ff] hover:text-[#996af6]"
+                                : "text-gray-600 hover:text-gray-700"
+                            }`}
+                            onClick={() => {
+                              if (!alreadyAdded) handleAddTagToEntry(tag.tag_id);
+                            }}
+                          >
+                            <span>{tag.name}</span>
+                            {/* Delete button */}
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation(); // prevents triggering the add
+                                if (
+                                  window.confirm(
+                                    `Delete tag "${tag.name}" from the database? This will remove it from all entries.`
+                                  )
+                                ) {
+                                  handleDeleteTagFromDB(tag.tag_id);
+                                }
+                              }}
+                              className="ml-2 font-bold"
+                            >
+                              ×
+                            </button>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+          {/* save/edit */}
           {isEditable ? (
             <>
               {hasText && (
@@ -361,96 +467,6 @@ export default function HeaderAndBody() {
               </button>
             </>
           )}
-          <div className=" flex-1 px-8 text-right">
-            {tagsShown && (
-              <div className="flex flex-col space-y-3 mt-4">
-                {/* Current tags for this entry */}
-                <div className="flex flex-wrap gap-2">
-                  {entryTags.length > 0 ? (
-                    entryTags.map((tag) => (
-                      <div
-                        key={tag.tag_id}
-                        className="flex items-center bg-gray-100 px-3 py-1 rounded"
-                      >
-                        <span>{tagsMap[tag.tag_id]}</span>
-                        {editingTags && (
-                          <button
-                            onClick={() => handleRemoveTagFromEntry(tag.tag_id)}
-                            className="ml-2 text-red-500 hover:text-red-700"
-                          >
-                            -
-                          </button>
-                        )}
-                      </div>
-                    ))
-                  ) : (
-                    <span className="text-gray-500 italic">No tags yet</span>
-                  )}
-                  <button
-                    onClick={() => setEditingTags(!editingTags)}
-                    className="ml-2 px-2 py-1 bg-gray-200 rounded hover:bg-gray-300"
-                  >
-                    {editingTags ? "Done" : "Edit"}
-                  </button>
-                </div>
-
-                {/* Panel to manage all tags */}
-                {editingTags && tagsShown && (
-                  <div className="flex flex-col space-y-2 mt-2 p-2 border rounded bg-gray-50">
-                    {/* Add new tag */}
-                    <div className="flex space-x-2">
-                      <input
-                        type="text"
-                        value={newTagName}
-                        onChange={(e) => setNewTagName(e.target.value)}
-                        placeholder="New tag..."
-                        className="border rounded px-3 py-1 flex-1"
-                      />
-                      <button
-                        onClick={handleAddNewTag}
-                        className="px-3 py-1 bg-green-200 rounded hover:bg-green-300"
-                      >
-                        Add
-                      </button>
-                    </div>
-
-                    {/* Add existing tag to today’s entry */}
-                    <div className="flex flex-wrap gap-2">
-                      {allTags
-                        .filter(
-                          (t) => !entryTags.some((et) => et.tag_id === t.tag_id)
-                        )
-                        .map((tag) => (
-                          <button
-                            key={tag.tag_id}
-                            onClick={() => handleAddTagToEntry(tag.tag_id)}
-                            className="bg-gray-200 px-3 py-1 rounded hover:bg-gray-300"
-                          >
-                            + {tag.name}
-                          </button>
-                        ))}
-                    </div>
-
-                  {/* Add existing tag to today’s entry */}
-                  <div className="flex flex-wrap gap-2">
-                    {allTags.filter(
-                        (t) =>t && t.tag_id && !entryTags.some((et) => et && et.tag_id && et.tag_id === t.tag_id)
-                      )
-                      .map((tag) => (
-                        <button
-                          key={tag.tag_id}
-                          onClick={() => handleDeleteTagFromDB(tag.tag_id)}
-                          className="bg-red-200 px-3 py-1 rounded hover:bg-red-300"
-                        >
-                          Delete {tag.name}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
         </div>
       </div>
     </>
