@@ -120,6 +120,15 @@ export default function HeaderAndBody() {
     if (bodyeditor) bodyeditor.setEditable(isEditable);
   }, [isEditable, headereditor, bodyeditor]);
 
+  useEffect(() => {
+    if (bodyeditor && entry.description) {
+      bodyeditor.commands.setContent(entry.description);
+    }
+    if (headereditor && entry.title) {
+      headereditor.commands.setContent(entry.title);
+    }
+  }, [entry, bodyeditor, headereditor]);
+
   const handleSave = async () => {
     if (bodyeditor) {
       const date = new Date();
@@ -136,29 +145,27 @@ export default function HeaderAndBody() {
       if (headereditor) headereditor.view.dom.style.fontSize = "30px";
       console.log("Saved content:", content);
 
-      if (isEdit) {
-        // Write updates to DB
+      if (entry.entry_id) {
+        // Entry exists → update
         const res = await fetch(`${baseUrl}/api/update_entry`, {
           method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
+            entry_id: entry.entry_id,
             date: date.toLocaleDateString(),
-            title: "N/A",
+            title: headereditor?.getText(),
             description: content,
           }),
         });
-        const data = await res.json();
+        await res.json();
       } else {
+        // No entry yet → add new
         const res = await fetch(`${baseUrl}/api/add_entry`, {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             date: date.toLocaleDateString(),
-            title: "N/A",
+            title: headereditor?.getText(),
             description: content,
           }),
         });
@@ -195,7 +202,7 @@ export default function HeaderAndBody() {
       body: JSON.stringify({ name: newTagName }),
     });
     const data = await res.json();
-    setAllTags([...allTags, data.tag]);
+    setAllTags([...allTags, data.user]);
     setNewTagName("");
   };
 
@@ -227,14 +234,8 @@ export default function HeaderAndBody() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ uid: uidHardcoded, tag_id }),
     });
-    setAllTags(allTags.filter((t) => t.tag_id !== tag_id));
-    setEntryTags(entryTags.filter((t) => t.tag_id !== tag_id));
-  };
-
-  const getTagById = async (tagId: number) => {
-    const res = await fetch(`/api/tags/get_tag?tag_id=${tagId}`);
-    const data = await res.json();
-    return data.tag.body.name;
+    setAllTags((prev) => prev.filter((t) => t.tag_id !== tag_id));
+    setEntryTags((prev) => prev.filter((t) => t.tag_id !== tag_id));
   };
 
   //get tags when loading
@@ -277,6 +278,8 @@ export default function HeaderAndBody() {
 
   return (
     <>
+    
+    {console.log(allTags)}
       <div className="flex flex-col justify-center items-start min-h-screen px-8 py-4 space-y-6 rounded-lg max-w-4xl mx-auto my-10 bg-transparent">
         <div className="text-xl text-[#A5A5A3] font-semibold font-[var(--font-sans)]">
           {date.toLocaleDateString(undefined, {
@@ -379,9 +382,12 @@ export default function HeaderAndBody() {
                         ))}
                     </div>
 
-                    {/* Optional: Delete tag completely from DB */}
-                    <div className="flex flex-wrap gap-2 mt-2">
-                      {allTags.map((tag) => (
+                  {/* Add existing tag to today’s entry */}
+                  <div className="flex flex-wrap gap-2">
+                    {allTags.filter(
+                        (t) =>t && t.tag_id && !entryTags.some((et) => et && et.tag_id && et.tag_id === t.tag_id)
+                      )
+                      .map((tag) => (
                         <button
                           key={tag.tag_id}
                           onClick={() => handleDeleteTagFromDB(tag.tag_id)}
