@@ -145,8 +145,8 @@ export default function HeaderAndBody() {
 
   return (
     <>
-      <div className="flex flex-col justify-center items-start min-h-screen px-8 py-4 space-y-6 rounded-lg max-w-4xl mx-auto my-10">
-        <div className="text-xl font-semibold font-[var(--font-sans)]">
+      <div className="flex flex-col justify-center items-start min-h-screen px-8 py-4 space-y-6 rounded-lg max-w-4xl mx-auto my-10 bg-transparent">
+        <div className="text-xl text-[#A5A5A3] font-semibold font-[var(--font-sans)]">
           {date.toLocaleDateString(undefined, {
             year: "numeric",
             month: "long",

@@ -8,17 +8,18 @@ export default function Homepage() {
   // Load from localStorage on mount
 
   return (
-    <>
+    <div className="min-h-screen">
       <nav
-        className="font-[var(--font-sans)] text-xl"
+        className="font-[var(--font-sans)] text-xl bg-transparent"
         style={{
-          position: "absolute",
+          position: "fixed",
           right: "0px",
           top: "0px",
           display: "inline-flex",
           padding: "15px 130.61px 2px 173.44px",
           justifyContent: "flex-end",
           alignItems: "center",
+          zIndex: 10,
         }}
       >
         {/* Simple navigation links, need to make it look nice */}
@@ -34,7 +35,7 @@ export default function Homepage() {
                 height: "45px",
                 flexShrink: 0,
                 borderRadius: "30px",
-                background: "#F8E1BF",
+                background: "#C0BDBD",
               }}
             ></div>
             <Link
@@ -87,10 +88,9 @@ export default function Homepage() {
         </ul>
       </nav>
       {/* want this to be properly centered, also want the date above the  */}
-
       <div>
         <HeaderAndBody />
       </div>
-    </>
+    </div>
   );
 }

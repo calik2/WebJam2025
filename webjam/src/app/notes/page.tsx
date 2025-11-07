@@ -83,7 +83,7 @@ export default function NotesPage() {
                 height: "45px",
                 flexShrink: 0,
                 borderRadius: "30px",
-                background: "#F8E1BF",
+                background: "#C0BDBD",
               }}
             ></div>
             <Link
