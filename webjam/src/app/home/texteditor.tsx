@@ -10,9 +10,11 @@ import Tag from "./tag";
 
 export default function HeaderAndBody() {
   const date = new Date();
+  const uidHardcoded = "b713dfe0-ed34-4a45-8681-bbbb1dadc662";
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
 
   const [isEditable, setIsEditable] = useState(true);
-  const [tagsShown, setTagsShown] = useState(false);
+  const [tagsShown, setTagsShown] = useState(true);
   const [isEdit, setIsEdit] = useState(false);
 
   const [labels, setLabels] = useState<string[]>(() => {
@@ -125,9 +127,6 @@ export default function HeaderAndBody() {
       setIsEditable(false); // lock editor
       console.log("Saved content:", content);
 
-      // Write to DB
-      const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
-
       if (isEdit)
       {
         // Write updates to DB
@@ -136,7 +135,7 @@ export default function HeaderAndBody() {
             headers: {
               'Content-Type': 'application/json',
             },
-            body: JSON.stringify({uid: "b713dfe0-ed34-4a45-8681-bbbb1dadc662", date: date.toLocaleDateString(), title: "N/A", description: content}),
+            body: JSON.stringify({uid: uidHardcoded, date: date.toLocaleDateString(), title: "N/A", description: content}),
           }
         )
         const data = await res.json();
@@ -148,7 +147,7 @@ export default function HeaderAndBody() {
             headers: {
               'Content-Type': 'application/json',
             },
-            body: JSON.stringify({uid: "b713dfe0-ed34-4a45-8681-bbbb1dadc662", date: date.toLocaleDateString(), title: "N/A", description: content}),
+            body: JSON.stringify({uid: uidHardcoded, date: date.toLocaleDateString(), title: "N/A", description: content}),
           }
         )
         const data = await res.json();
@@ -171,13 +170,34 @@ export default function HeaderAndBody() {
     }
   };
 
-  const handleAddTag = () => {
+  const handleAddTag = async () => {
     if (!newTag.trim()) return;
+
+    const res = await fetch(`${baseUrl}/api/update_entry`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({uid: uidHardcoded, name: newTag}),
+      }
+    )
+    const data = await res.json();
     const updated = [...labels, newTag];
     setLabels(updated);
     localStorage.setItem("labels", JSON.stringify(updated));
     setNewTag("");
   };
+
+  const handleGetTags = async () => {
+    const res = await fetch(`${baseUrl}/api/update_entry`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({uid: uidHardcoded, name: newTag}),
+      }
+    )
+  }
 
   // When a tag is selected
   const handleSelectTag = (tag: string) => {
