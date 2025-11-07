@@ -23,6 +23,7 @@ export default function HeaderAndBody() {
   const [isEditable, setIsEditable] = useState(true);
   const [tagsShown, setTagsShown] = useState(true);
   const [isEdit, setIsEdit] = useState(false);
+  const [hasText, setHasText] = useState(false);
 
   const [labels, setLabels] = useState<string[]>(() => {
     if (typeof window !== "undefined") {
@@ -89,6 +90,8 @@ export default function HeaderAndBody() {
     },
     onUpdate: ({ editor }) => {
       const html = editor.getHTML();
+      const text = editor.getText().trim();
+      setHasText(text.length > 0);
       localStorage.setItem("body-tiptap", html);
     },
   });
@@ -129,6 +132,13 @@ export default function HeaderAndBody() {
     if (headereditor) headereditor.setEditable(isEditable);
     if (bodyeditor) bodyeditor.setEditable(isEditable);
   }, [isEditable, headereditor, bodyeditor]);
+
+  useEffect(() => {
+    if (bodyeditor) {
+      const text = bodyeditor.getText().trim();
+      setHasText(text.length > 0);
+    }
+  }, [bodyeditor]);
 
   const handleSave = async (): Promise<void> => {
     if (bodyeditor) {
@@ -282,31 +292,37 @@ export default function HeaderAndBody() {
         >
           {isEditable ? (
             <>
-              <button
-                className="relative overflow-hidden transition duration-300 ease-in-out hover:scale-105 font-[var(--font-nunito-sans)] font-normal text-[#E98F53]"
-                style={{
-                  padding: "4.4px 19.41px 4.81px 20px",
-                  borderRadius: "36px",
-                  border: "1px solid #E98F53",
-                  background:
-                    "linear-gradient(180deg, rgba(233, 143, 83, 0.06) 0%, rgba(233, 143, 83, 0) 100%)",
-                }}
-                onClick={handleSave}
-                data-glow="true"
-              >
-                save
-              </button>
+              {hasText && (
+                <button
+                  className="relative overflow-hidden transition duration-300 ease-in-out hover:scale-105 text-[#E98F53]"
+                  style={{
+                    padding: "4.4px 19.41px 4.81px 20px",
+                    borderRadius: "36px",
+                    border: "1px solid #E98F53",
+                    background:
+                      "linear-gradient(180deg, rgba(233, 143, 83, 0.06) 0%, rgba(233, 143, 83, 0) 100%)",
+                    fontFamily: "var(--font-nunito-sans), sans-serif",
+                    fontWeight: 400,
+                  }}
+                  onClick={handleSave}
+                  data-glow="true"
+                >
+                  save
+                </button>
+              )}
             </>
           ) : (
             <>
               <button
-                className="relative overflow-hidden transition duration-300 ease-in-out hover:scale-105 font-[var(--font-nunito-sans)] font-normal text-[#E98F53]"
+                className="relative overflow-hidden transition duration-300 ease-in-out hover:scale-105 text-[#E98F53]"
                 style={{
                   padding: "4.4px 19.41px 4.81px 20px",
                   borderRadius: "36px",
                   border: "1px solid #E98F53",
                   background:
                     "linear-gradient(180deg, rgba(233, 143, 83, 0.06) 0%, rgba(233, 143, 83, 0) 100%)",
+                  fontFamily: "var(--font-nunito-sans), sans-serif",
+                  fontWeight: 400,
                 }}
                 onClick={handleEdit}
                 data-glow="true"

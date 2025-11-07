@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Nunito, Lora } from "next/font/google";
 import "./globals.css";
+import CustomCursor from "./components/CustomCursor";
 
 const nunito = Nunito({
   variable: "--font-nunito-sans",
@@ -29,6 +30,7 @@ export default function RootLayout({
       <body
         className={`min-h-screen bg-custom bg-cover bg-center bg-fixed ${lora.variable} ${nunito.variable} antialiased`}
       >
+        <CustomCursor />
         {children}
       </body>
     </html>
