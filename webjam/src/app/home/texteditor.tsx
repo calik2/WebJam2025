@@ -16,26 +16,6 @@ export default function HeaderAndBody() {
   const [isEditable, setIsEditable] = useState(true);
   const [tagsShown, setTagsShown] = useState(true);
   const [isEdit, setIsEdit] = useState(false);
-
-  const [labels, setLabels] = useState<string[]>(() => {
-    if (typeof window !== "undefined") {
-      return JSON.parse(localStorage.getItem("labels") || "[]");
-    }
-    return [];
-  });
-
-  // Load from localStorage
-  // const savedContent =
-  //   typeof window !== "undefined" ? localStorage.getItem("paper-tiptap") : "";
-  // const initialContent =
-  //   savedContent && savedContent.trim() !== "<p></p>" ? savedContent : "";
-  // Load from localStorage
-  const [selectedTag, setSelectedTag] = useState<string | null>(() => {
-    if (typeof window !== "undefined") {
-      return localStorage.getItem("selectedTag");
-    }
-    return null;
-  });
   const [entry, setEntry] = useState<{
     entry_id: number;
     date: string;
@@ -332,89 +312,91 @@ export default function HeaderAndBody() {
             </>
           )}
           <div className=" flex-1 px-8 text-right">
-            <div className="flex flex-col space-y-3 mt-4">
-              {/* Current tags for this entry */}
-              <div className="flex flex-wrap gap-2">
-                {entryTags.length > 0 ? (
-                  entryTags.map((tag) => (
-                    <div
-                      key={tag.tag_id}
-                      className="flex items-center bg-gray-100 px-3 py-1 rounded"
-                    >
-                      <span>{tagsMap[tag.tag_id]}</span>
-                      {editingTags && (
-                        <button
-                          onClick={() => handleRemoveTagFromEntry(tag.tag_id)}
-                          className="ml-2 text-red-500 hover:text-red-700"
-                        >
-                          -
-                        </button>
-                      )}
+            {tagsShown && (
+              <div className="flex flex-col space-y-3 mt-4">
+                {/* Current tags for this entry */}
+                <div className="flex flex-wrap gap-2">
+                  {entryTags.length > 0 ? (
+                    entryTags.map((tag) => (
+                      <div
+                        key={tag.tag_id}
+                        className="flex items-center bg-gray-100 px-3 py-1 rounded"
+                      >
+                        <span>{tagsMap[tag.tag_id]}</span>
+                        {editingTags && (
+                          <button
+                            onClick={() => handleRemoveTagFromEntry(tag.tag_id)}
+                            className="ml-2 text-red-500 hover:text-red-700"
+                          >
+                            -
+                          </button>
+                        )}
+                      </div>
+                    ))
+                  ) : (
+                    <span className="text-gray-500 italic">No tags yet</span>
+                  )}
+                  <button
+                    onClick={() => setEditingTags(!editingTags)}
+                    className="ml-2 px-2 py-1 bg-gray-200 rounded hover:bg-gray-300"
+                  >
+                    {editingTags ? "Done" : "Edit"}
+                  </button>
+                </div>
+
+                {/* Panel to manage all tags */}
+                {editingTags && tagsShown && (
+                  <div className="flex flex-col space-y-2 mt-2 p-2 border rounded bg-gray-50">
+                    {/* Add new tag */}
+                    <div className="flex space-x-2">
+                      <input
+                        type="text"
+                        value={newTagName}
+                        onChange={(e) => setNewTagName(e.target.value)}
+                        placeholder="New tag..."
+                        className="border rounded px-3 py-1 flex-1"
+                      />
+                      <button
+                        onClick={handleAddNewTag}
+                        className="px-3 py-1 bg-green-200 rounded hover:bg-green-300"
+                      >
+                        Add
+                      </button>
                     </div>
-                  ))
-                ) : (
-                  <span className="text-gray-500 italic">No tags yet</span>
-                )}
-                <button
-                  onClick={() => setEditingTags(!editingTags)}
-                  className="ml-2 px-2 py-1 bg-gray-200 rounded hover:bg-gray-300"
-                >
-                  {editingTags ? "Done" : "Edit"}
-                </button>
-              </div>
 
-              {/* Panel to manage all tags */}
-              {editingTags && (
-                <div className="flex flex-col space-y-2 mt-2 p-2 border rounded bg-gray-50">
-                  {/* Add new tag */}
-                  <div className="flex space-x-2">
-                    <input
-                      type="text"
-                      value={newTagName}
-                      onChange={(e) => setNewTagName(e.target.value)}
-                      placeholder="New tag..."
-                      className="border rounded px-3 py-1 flex-1"
-                    />
-                    <button
-                      onClick={handleAddNewTag}
-                      className="px-3 py-1 bg-green-200 rounded hover:bg-green-300"
-                    >
-                      Add
-                    </button>
-                  </div>
+                    {/* Add existing tag to today’s entry */}
+                    <div className="flex flex-wrap gap-2">
+                      {allTags
+                        .filter(
+                          (t) => !entryTags.some((et) => et.tag_id === t.tag_id)
+                        )
+                        .map((tag) => (
+                          <button
+                            key={tag.tag_id}
+                            onClick={() => handleAddTagToEntry(tag.tag_id)}
+                            className="bg-gray-200 px-3 py-1 rounded hover:bg-gray-300"
+                          >
+                            + {tag.name}
+                          </button>
+                        ))}
+                    </div>
 
-                  {/* Add existing tag to today’s entry */}
-                  <div className="flex flex-wrap gap-2">
-                    {allTags
-                      .filter(
-                        (t) => !entryTags.some((et) => et.tag_id === t.tag_id)
-                      )
-                      .map((tag) => (
+                    {/* Optional: Delete tag completely from DB */}
+                    <div className="flex flex-wrap gap-2 mt-2">
+                      {allTags.map((tag) => (
                         <button
                           key={tag.tag_id}
-                          onClick={() => handleAddTagToEntry(tag.tag_id)}
-                          className="bg-gray-200 px-3 py-1 rounded hover:bg-gray-300"
+                          onClick={() => handleDeleteTagFromDB(tag.tag_id)}
+                          className="bg-red-200 px-3 py-1 rounded hover:bg-red-300"
                         >
-                          + {tag.name}
+                          Delete {tag.name}
                         </button>
                       ))}
+                    </div>
                   </div>
-
-                  {/* Optional: Delete tag completely from DB */}
-                  <div className="flex flex-wrap gap-2 mt-2">
-                    {allTags.map((tag) => (
-                      <button
-                        key={tag.tag_id}
-                        onClick={() => handleDeleteTagFromDB(tag.tag_id)}
-                        className="bg-red-200 px-3 py-1 rounded hover:bg-red-300"
-                      >
-                        Delete {tag.name}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
+                )}
+              </div>
+            )}
           </div>
         </div>
 
