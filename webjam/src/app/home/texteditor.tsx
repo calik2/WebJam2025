@@ -36,10 +36,10 @@ export default function HeaderAndBody() {
   });
 
   const [newTag, setNewTag] = useState("");
-  const savedContent =
-    typeof window !== "undefined" ? localStorage.getItem("body-tiptap") : "";
   const savedHeader =
     typeof window !== "undefined" ? localStorage.getItem("header-tiptap") : "";
+  const savedContent =
+    typeof window !== "undefined" ? localStorage.getItem("paper-tiptap") : "";
   const savedDate =
     typeof window !== "undefined"
       ? localStorage.getItem("paper-tiptap-date")
