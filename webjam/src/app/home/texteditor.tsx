@@ -22,7 +22,6 @@ export default function HeaderAndBody() {
 
   const [isEditable, setIsEditable] = useState(true);
   const [tagsShown, setTagsShown] = useState(true);
-  const [isEdit, setIsEdit] = useState(false);
   const [entry, setEntry] = useState<{
     entry_id: number;
     date: string;
@@ -201,7 +200,6 @@ export default function HeaderAndBody() {
 
       setIsEditable(true); // unlock editor
       console.log("edit content:", content);
-      setIsEdit(true);
       setTagsShown(false);
       bodyeditor.view.dom.style.color = "#77777B";
       bodyeditor.view.dom.style.fontSize = "40px";
