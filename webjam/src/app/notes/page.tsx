@@ -4,26 +4,61 @@ import Link from "next/link";
 import StickyNote from "./stickynote";
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
-import { redirect } from "next/navigation";
-
 
 export default function NotesPage() {
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
   const [notes, setNotes] = useState<any[]>([]);
+  const [allTags, setAllTags] = useState<{ tag_id: number; name: string }[]>([]);
+  const [tagsMap, setTagsMap] = useState<{ [id: number]: string }>({});
+  const [selectedTag, setSelectedTag] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
 
   const getNotes = async () => {
-    const res = await fetch(`${baseUrl}/api/get_all_entries`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
+    const resEntries = await fetch(`${baseUrl}/api/get_all_entries`);
+    const dataEntries = await resEntries.json();
+    const entriesData = dataEntries.body || [];
+
+    const resAllTags = await fetch(`${baseUrl}/api/tags/get_all_tags`);
+    const dataAllTags = (await resAllTags.json()).body || [];
+    setAllTags(dataAllTags);
+
+    const map: { [id: number]: string } = {};
+    dataAllTags.forEach((tag) => {
+      map[tag.tag_id] = tag.name;
     });
-    const data = await res.json();
-    setNotes(data.body);
+    setTagsMap(map);
+
+    const entriesWithTags = await Promise.all(
+      entriesData.map(async (entry: any) => {
+        const resTags = await fetch(
+          `${baseUrl}/api/entry_tags/get_entry_tag?entry_id=${entry.entry_id}`
+        );
+        const tagsData = await resTags.json();
+        const tagList = tagsData.body || [];
+        return {
+          ...entry,
+          tags: tagList,
+          tagNames: tagList.map((t: { tag_id: number }) => map[t.tag_id]),
+        };
+      })
+    );
+
+    setNotes(entriesWithTags);
   };
+
   useEffect(() => {
     getNotes();
   }, []);
+
+  // Filter notes by selected tag and search query
+  const filteredNotes = notes.filter((note) => {
+    const matchesTag = selectedTag ? note.tagNames?.includes(selectedTag) : true;
+    const matchesSearch =
+      searchQuery === "" ||
+      note.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      note.description.toLowerCase().includes(searchQuery.toLowerCase());
+    return matchesTag && matchesSearch;
+  });
 
   return (
     <>
@@ -39,7 +74,6 @@ export default function NotesPage() {
           alignItems: "center",
         }}
       >
-        {/* Simple navigation links, need to make it look nice */}
         <ul className="flex space-x-8">
           <li>
             <Link
@@ -94,22 +128,73 @@ export default function NotesPage() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 1 }}
+        className="pb-40" // padding-bottom so content isn't hidden behind tag bar
       >
         <div style={{ height: "90px" }}></div>
+
+        {/* Sticky notes layout */}
         <div
           className="columns-4 sm:columns-2 lg:columns-4 p-10"
           style={{ columnGap: "15px" }}
         >
-          {notes.map((note, index) => (
-            <StickyNote
-              key={note.id ?? index}
-              date={note.date}
-              content={note.description}
-              index={index}
-            />
-          ))}
+          {filteredNotes.length > 0 ? (
+            filteredNotes.map((note, index) => (
+              <StickyNote
+                key={note.entry_id ?? index}
+                index={index}
+                date={note.date}
+                content={note.description.slice(0, 150)}
+                header={note.title}
+                tags={note.tagNames}
+              />
+            ))
+          ) : (
+            <div className="text-gray-500 italic">No notes found</div>
+          )}
         </div>
       </motion.div>
+
+      {/* Fixed bottom tag bar */}
+      <div className="fixed bottom-0 right-4 flex flex-col gap-2 z-50 p-4">
+        {/* Search bar */}
+        <div className="flex justify-center w-full">
+          <input
+            type="text"
+            placeholder="Search by keyword..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="border rounded-full px-4 py-2 w-64 focus:outline-none focus:border-[#E48ABF]"
+          />
+        </div>
+        {/* "All" bubble */}
+        <div className="flex flex-wrap gap-2 justify-center mt-2">
+        <div
+          className={`px-4 py-1 rounded-full border cursor-pointer text-sm transition ${
+            selectedTag === null
+              ? "bg-[#E48ABF] text-white border-[#E48ABF]"
+              : "bg-white text-[#E48ABF] border-[#E48ABF]"
+          }`}
+          onClick={() => setSelectedTag(null)}
+        >
+          all tags
+        </div>
+
+        {/* Tag bubbles */}
+        {allTags.map((tag) => (
+          <div
+            key={tag.tag_id}
+            className={`px-4 py-1 rounded-full border cursor-pointer text-sm transition ${
+              selectedTag === tag.name
+                ? "bg-[#E48ABF] text-white border-[#E48ABF]"
+                : "bg-white text-[#E48ABF] border-[#E48ABF] hover:bg-[#FCE2ED]"
+            }`}
+            onClick={() => setSelectedTag(tag.name)}
+          >
+            {tag.name}
+          </div>
+        ))}
+        </div>
+      </div>
     </>
   );
 }
