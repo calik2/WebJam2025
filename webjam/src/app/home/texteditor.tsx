@@ -377,18 +377,12 @@ export default function HeaderAndBody() {
                         ))}
                     </div>
 
-<<<<<<< HEAD
                   {/* Add existing tag to today’s entry */}
                   <div className="flex flex-wrap gap-2">
                     {allTags.filter(
                         (t) =>t && t.tag_id && !entryTags.some((et) => et && et.tag_id && et.tag_id === t.tag_id)
                       )
                       .map((tag) => (
-=======
-                    {/* Optional: Delete tag completely from DB */}
-                    <div className="flex flex-wrap gap-2 mt-2">
-                      {allTags.map((tag) => (
->>>>>>> sritha-frontend
                         <button
                           key={tag.tag_id}
                           onClick={() => handleDeleteTagFromDB(tag.tag_id)}
