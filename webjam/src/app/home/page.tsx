@@ -36,7 +36,8 @@ export default function Homepage() {
                 height: "45px",
                 flexShrink: 0,
                 borderRadius: "30px",
-                background: "#C0BDBD",
+                background: "#F8E1BF",
+                boxShadow: "0 3px 8px rgba(0, 0, 0, 0.06)",
               }}
             ></div>
             <Link

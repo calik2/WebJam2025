@@ -10,6 +10,13 @@ import Tag from "./tag";
 
 export default function HeaderAndBody() {
   const date = new Date();
+  const formattedDate = date
+    .toLocaleDateString(undefined, {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    })
+    .toUpperCase();
   const uidHardcoded = "b713dfe0-ed34-4a45-8681-bbbb1dadc662";
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
 
@@ -30,6 +37,7 @@ export default function HeaderAndBody() {
   const [editingTags, setEditingTags] = useState(false); // edit mode toggle
   const [newTagName, setNewTagName] = useState(""); // for adding new tag
   const [tagsMap, setTagsMap] = useState<{ [tagId: number]: string }>({});
+  const [hasText, setHasText] = useState(false);
 
   // const [labels, setLabels] = useState<string[]>(() => {
   //   if (typeof window !== "undefined") {
@@ -67,20 +75,24 @@ export default function HeaderAndBody() {
     editorProps: {
       attributes: {
         class:
-          "ProseMirror justify-left items-left outline-none text-4xl font-[var(--font-lora)] !font-[var(--font-lora)] leading-relaxed p-10 ",
+          "ProseMirror justify-left items-left outline-none text-4xl font-[var(--font-lora)] !font-[var(--font-lora)] leading-relaxed py-10 pr-10",
         style: `         
           color: #77777B;
           font-family: Lora;
-          font-size 40px;
+          font-size: 40px;
           font-style: normal;
           font-weight: 400;
           line-height: 51px;
           text-align: left;
+          min-height: 200px;
+          width: 105%;
         `,
       },
     },
     onUpdate: ({ editor }) => {
       const html = editor.getHTML();
+      const text = editor.getText().trim();
+      setHasText(text.length > 0);
       localStorage.setItem("body-tiptap", html);
     },
   });
@@ -89,7 +101,7 @@ export default function HeaderAndBody() {
     extensions: [
       StarterKit,
       Placeholder.configure({
-        placeholder: "Title your learning...",
+        placeholder: "ADD A TITLE",
       }),
     ],
     editable: isEditable,
@@ -98,15 +110,17 @@ export default function HeaderAndBody() {
     editorProps: {
       attributes: {
         class:
-          "ProseMirror justify-left items-left outline-none text-4xl font-[var(--font-lora)] !font-[var(--font-lora)] leading-relaxed p-10 ",
+          "ProseMirror inline-flex items-center outline-none font-['Nunito'] !font-['Nunito']",
         style: `         
           color: #77777B;
-          font-family: Lora;
-          font-size: 25px;
+          font-family: Nunito;
+          font-size: 16px;
           font-style: normal;
           font-weight: 400;
-          line-height: 51px;
+          line-height: normal;
           text-align: left;
+          min-height: auto;
+          width: fit-content;
         `,
       },
     },
@@ -121,15 +135,13 @@ export default function HeaderAndBody() {
   }, [isEditable, headereditor, bodyeditor]);
 
   useEffect(() => {
-    if (bodyeditor && entry.description) {
-      bodyeditor.commands.setContent(entry.description);
+    if (bodyeditor) {
+      const text = bodyeditor.getText().trim();
+      setHasText(text.length > 0);
     }
-    if (headereditor && entry.title) {
-      headereditor.commands.setContent(entry.title);
-    }
-  }, [entry, bodyeditor, headereditor]);
+  }, [bodyeditor]);
 
-  const handleSave = async () => {
+  const handleSave = async (): Promise<void> => {
     if (bodyeditor) {
       const date = new Date();
 
@@ -141,8 +153,12 @@ export default function HeaderAndBody() {
       setIsEditable(false); // lock editor
       bodyeditor.view.dom.style.color = "#353D48";
       bodyeditor.view.dom.style.fontSize = "40px";
-      if (headereditor) headereditor.view.dom.style.color = "#353D48";
-      if (headereditor) headereditor.view.dom.style.fontSize = "30px";
+      if (headereditor) {
+        headereditor.view.dom.style.color = "#353D48";
+        headereditor.view.dom.style.fontSize = "16px";
+        headereditor.view.dom.style.fontFamily = "Nunito";
+        headereditor.view.dom.style.fontWeight = "400";
+      }
       console.log("Saved content:", content);
 
       if (entry.entry_id) {
@@ -188,11 +204,15 @@ export default function HeaderAndBody() {
       setIsEdit(true);
       setTagsShown(false);
       bodyeditor.view.dom.style.color = "#77777B";
-      bodyeditor.view.dom.style.fontSize = "30px";
+      bodyeditor.view.dom.style.fontSize = "40px";
     }
 
-    if (headereditor) headereditor.view.dom.style.color = "#77777B";
-    if (headereditor) headereditor.view.dom.style.fontSize = "25px";
+    if (headereditor) {
+      headereditor.view.dom.style.color = "#77777B";
+      headereditor.view.dom.style.fontSize = "16px";
+      headereditor.view.dom.style.fontFamily = "Nunito";
+      headereditor.view.dom.style.fontWeight = "400";
+    }
   };
 
   // Add new tag to DB
@@ -280,35 +300,67 @@ export default function HeaderAndBody() {
 
   return (
     <>
-    
-    {console.log(allTags)}
-      <div className="flex flex-col justify-center items-start min-h-screen px-8 py-4 space-y-6 rounded-lg max-w-4xl mx-auto my-10 bg-transparent">
-        <div className="text-xl text-[#A5A5A3] font-semibold font-[var(--font-sans)]">
-          {date.toLocaleDateString(undefined, {
-            year: "numeric",
-            month: "long",
-            day: "numeric",
-          })}
-          <div className="font-normal font-[var(--font-sans)] ">
+      <div className="flex flex-col justify-center items-start min-h-screen px-8 py-4 space-y-6 rounded-lg max-w-6xl mx-auto my-10 bg-transparent">
+        <div className="flex flex-col gap-4" style={{ width: "105%" }}>
+          <div className="flex flex-wrap items-center gap-4">
+            <div
+              className="inline-flex items-center text-[16px] text-[#77777B] font-['Nunito'] tracking-wide"
+            >
+              {formattedDate}
+            </div>
+            <div
+              className="inline-flex ml-auto"
+              style={{ transform: "translateX(53px)" }}
+            >
+              <EditorContent editor={headereditor} />
+            </div>
+          </div>
+
+          <div className="font-normal font-[var(--font-sans)]">
             <EditorContent editor={bodyeditor} />
           </div>
         </div>
 
-        <div className="flex justify-between items-end space-y-4 w-full max-w-4xl p-4 text-xl">
+        <div
+          className="flex justify-between items-end space-y-4 w-full max-w-4xl p-4 text-xl"
+          style={{ transform: "translateX(1103px)" }}
+        >
           {isEditable ? (
             <>
-              <button
-                className="px-4 py-2 rounded-4xl outline outline-solid hover:outline-2 duration-300 ease-in-out hover:scale-105 transition"
-                onClick={handleSave}
-              >
-                save
-              </button>
+              {hasText && (
+                <button
+                  className="relative overflow-hidden transition duration-300 ease-in-out hover:scale-105 text-[#E98F53]"
+                  style={{
+                    padding: "4.4px 19.41px 4.81px 20px",
+                    borderRadius: "36px",
+                    border: "1px solid #E98F53",
+                    background:
+                      "linear-gradient(180deg, rgba(233, 143, 83, 0.06) 0%, rgba(233, 143, 83, 0) 100%)",
+                    fontFamily: "var(--font-nunito-sans), sans-serif",
+                    fontWeight: 400,
+                  }}
+                  onClick={handleSave}
+                  data-glow="true"
+                >
+                  save
+                </button>
+              )}
             </>
           ) : (
             <>
               <button
-                className="px-4 py-2 rounded-4xl outline outline-solid hover:outline-2 duration-300 ease-in-out hover:scale-105 transition"
+                className="relative overflow-hidden transition duration-300 ease-in-out hover:scale-105 text-[#E98F53]"
+                style={{
+                  padding: "4.4px 19.41px 4.81px 20px",
+                  borderRadius: "36px",
+                  border: "1px solid #E98F53",
+                  background:
+                    "linear-gradient(180deg, rgba(233, 143, 83, 0.06) 0%, rgba(233, 143, 83, 0) 100%)",
+                  fontFamily: "var(--font-nunito-sans), sans-serif",
+                  fontWeight: 400,
+                }}
                 onClick={handleEdit}
+                data-glow="true"
               >
                 edit
               </button>
@@ -404,10 +456,6 @@ export default function HeaderAndBody() {
               </div>
             )}
           </div>
-        </div>
-
-        <div className="w-full max-w-4xl">
-          <EditorContent editor={headereditor} />
         </div>
       </div>
     </>

@@ -10,24 +10,33 @@ export default function StickyNote({
   index: number;
 }) {
   const chooseColor = () => {
-    const colors = [
-      "bg-yellow-200",
-      "bg-pink-200",
-      "bg-blue-200",
-      "bg-green-200",
-    ];
+    const colors = ["#FFFCD8", "#FCD3EC", "#D3E6FF", "#DFFFD5"];
     return colors[index % colors.length];
   };
   return (
     <div className="flex flex-col items-center gap-3 break-inside-avoid hover:scale-105 transition-transform duration-300">
-      {header && <div className="font-bold mt-9">{header}</div>}
+      {header && (
+        <div className="mt-9 text-[16px] text-[#353D48] font-['Nunito'] font-normal">
+          {header.replace(/<[^>]+>/g, "")}
+        </div>
+      )}
 
       <div
-        className={`${chooseColor()} p-3 shadow-lg break-words inline-block w-auto max-w-xs `}
+        className="p-10 shadow-lg break-words inline-block w-auto max-w-xs rounded-[8px]"
+        style={{ backgroundColor: chooseColor() }}
       >
         <div className="text-gray-600">{content}</div>
       </div>
-      <div className="whitespace-pre-wrap">Date: {date}</div>
+      <div
+        className="whitespace-pre-wrap"
+        style={{
+          fontFamily: "var(--font-nunito-sans)",
+          fontWeight: 400,
+          color: "#353D48",
+        }}
+      >
+        Date: {date}
+      </div>
     </div>
   );
 }
