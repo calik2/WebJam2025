@@ -143,6 +143,12 @@ export default function HeaderAndBody() {
     localStorage.removeItem("selectedTag");
   };
 
+  const removeTag = (tag: string) => {
+    const updated = labels.filter((t) => t !== tag);
+    setLabels(updated);
+    localStorage.setItem("labels", JSON.stringify(updated));
+  };
+
   return (
     <>
       <div className="flex flex-col justify-center items-start min-h-screen px-8 py-4 space-y-6 rounded-lg max-w-4xl mx-auto my-10 bg-transparent">
@@ -178,13 +184,20 @@ export default function HeaderAndBody() {
                     <div className="flex flex-wrap justify-center gap-3">
                       {labels.length > 0 ? (
                         labels.map((label, i) => (
-                          <button
+                          <div
                             key={i}
-                            onClick={() => handleSelectTag(label)}
                             className="px-4 py-2  rounded-xl hover:bg-gray-300 dark:hover:bg-gray-700 transition-all"
                           >
-                            {label}
-                          </button>
+                            <button onClick={() => handleSelectTag(label)}>
+                              {label}
+                            </button>
+                            <button
+                              className="ml-2 text-red-500 hover:text-red-700"
+                              onClick={() => removeTag(label)}
+                            >
+                              x
+                            </button>
+                          </div>
                         ))
                       ) : (
                         <div className="text-gray-500 italic">
