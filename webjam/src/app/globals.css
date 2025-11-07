@@ -92,3 +92,18 @@ button[data-glow="true"]:hover::after {
   color: #9CA3AF;
 }
 
+/* Typing glow effect for body editor */
+.ProseMirror.typing-glow {
+  text-shadow: 0 0 8px rgba(255, 255, 255, 0.8), 0 0 12px rgba(255, 255, 255, 0.6), 0 0 16px rgba(255, 255, 255, 0.4);
+  animation: fadeGlow 4s ease-out forwards;
+}
+
+@keyframes fadeGlow {
+  0% {
+    text-shadow: 0 0 8px rgba(255, 255, 255, 0.8), 0 0 12px rgba(255, 255, 255, 0.6), 0 0 16px rgba(255, 255, 255, 0.4);
+  }
+  100% {
+    text-shadow: 0 0 0px rgba(255, 255, 255, 0);
+  }
+}
+

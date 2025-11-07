@@ -191,33 +191,26 @@ export default function NotesPage() {
         </div>
 
         {/* Tag bubbles */}
-        {allTags.map((tag) => (
-          <div
-            key={tag.tag_id}
-            className="px-4 py-1 rounded-full border cursor-pointer text-sm transition"
-            onClick={() => setSelectedTag(tag.name)}
-            style={{ 
-              fontFamily: "var(--font-nunito-sans), sans-serif",
-              backgroundColor: selectedTag === tag.name
-                ? "rgba(156, 163, 175, 0.5)"
-                : "rgba(255, 255, 255, 0.5)",
-              borderColor: "#9CA3AF",
-              color: "#9CA3AF"
-            }}
-            onMouseEnter={(e) => {
-              if (selectedTag !== tag.name) {
-                e.currentTarget.style.backgroundColor = "rgba(229, 231, 235, 0.5)";
-              }
-            }}
-            onMouseLeave={(e) => {
-              if (selectedTag !== tag.name) {
-                e.currentTarget.style.backgroundColor = "rgba(255, 255, 255, 0.5)";
-              }
-            }}
-          >
-            {tag.name}
-          </div>
-        ))}
+        {allTags.map((tag) => {
+          // Hide tags that aren't selected when a tag is selected
+          if (selectedTag !== null && selectedTag !== tag.name) {
+            return null;
+          }
+          return (
+            <div
+              key={tag.tag_id}
+              className="px-4 py-1 rounded-full border-1 cursor-pointer text-sm transition"
+              onClick={() => setSelectedTag(tag.name)}
+              style={{ 
+                fontFamily: "var(--font-nunito-sans), sans-serif",
+                color: "#9CA3AF",
+                borderColor: "#9CA3AF"
+              }}
+            >
+              {tag.name}
+            </div>
+          );
+        })}
         </div>
       </div>
     </>

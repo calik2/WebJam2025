@@ -33,6 +33,8 @@ export default function HeaderAndBody() {
   const [newTagName, setNewTagName] = useState(""); // for adding new tag
   const [tagsMap, setTagsMap] = useState<{ [tagId: number]: string }>({});
   const [hasText, setHasText] = useState(false);
+  const [showAddTags, setShowAddTags] = useState(false); // show add tags panel
+  const [isTyping, setIsTyping] = useState(false);
 
   const savedHeader =
     typeof window !== "undefined" ? localStorage.getItem("header-tiptap") : "";
@@ -82,6 +84,23 @@ export default function HeaderAndBody() {
       setHasText(text.length > 0);
       localStorage.setItem("body-tiptap", html);
     },
+    onTransaction: ({ transaction }) => {
+      // Detect if text was inserted (typing)
+      if (transaction.docChanged) {
+        const hasInsertion = transaction.steps.some((step: any) => {
+          // Check if step is an insertion step
+          return step.from !== undefined && step.to !== undefined && step.to > step.from;
+        });
+        
+        if (hasInsertion) {
+          setIsTyping(true);
+          // Remove the glow class after animation completes
+          setTimeout(() => {
+            setIsTyping(false);
+          }, 4000);
+        }
+      }
+    },
   });
 
   const headereditor = useEditor({
@@ -120,6 +139,18 @@ export default function HeaderAndBody() {
     if (headereditor) headereditor.setEditable(isEditable);
     if (bodyeditor) bodyeditor.setEditable(isEditable);
   }, [isEditable, headereditor, bodyeditor]);
+
+  // Apply typing glow effect
+  useEffect(() => {
+    if (bodyeditor && bodyeditor.view.dom) {
+      const editorElement = bodyeditor.view.dom;
+      if (isTyping) {
+        editorElement.classList.add('typing-glow');
+      } else {
+        editorElement.classList.remove('typing-glow');
+      }
+    }
+  }, [isTyping, bodyeditor]);
 
   useEffect(() => {
     if (bodyeditor) {
@@ -320,7 +351,7 @@ export default function HeaderAndBody() {
           {tagsShown && (
               <div className="relative flex flex-col space-y-3" style={{ transform: "translateX(-3px)" }}>
                 {/* Current tags for this entry */}
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap gap-2 items-center">
                   {entryTags.length > 0 && (
                     entryTags.map((tag) => (
                       <div
@@ -340,7 +371,54 @@ export default function HeaderAndBody() {
                       </div>
                     ))
                   )}
+                  {/* Add tags button */}
+                  <button
+                    onClick={() => setShowAddTags(!showAddTags)}
+                    className="flex items-center justify-center px-4 py-1 rounded-full text-[#9CA3AF] border border-[#9CA3AF] text-xs cursor-pointer"
+                    style={{ 
+                      fontFamily: "var(--font-nunito-sans), sans-serif",
+                      minWidth: "32px",
+                      height: "28px"
+                    }}
+                  >
+                    +
+                  </button>
                 </div>
+
+                {/* Panel to add tags */}
+                {showAddTags && tagsShown && (
+                  <div
+                    className="absolute left-0 mt-2 p-4 rounded z-10"
+                    style={{ width: "100%", top: "100%" }}
+                  >
+                    <div className="flex flex-wrap gap-2">
+                      {allTags.map((tag) => {
+                        const alreadyAdded = entryTags.some((et) => et.tag_id === tag.tag_id);
+                        return (
+                          <div
+                            key={tag.tag_id}
+                            className={`flex items-center px-4 py-1 rounded-full cursor-pointer border transition duration-300 ease-in-out hover:scale-105 ${
+                              alreadyAdded
+                                ? "text-[#9CA3AF] border-[#9CA3AF] opacity-50 cursor-not-allowed"
+                                : "text-[#9CA3AF] border-[#9CA3AF]"
+                            }`}
+                            style={{ 
+                              fontFamily: "var(--font-nunito-sans), sans-serif"
+                            }}
+                            onClick={() => {
+                              if (!alreadyAdded) {
+                                handleAddTagToEntry(tag.tag_id);
+                                setShowAddTags(false);
+                              }
+                            }}
+                          >
+                            <span>{tag.name}</span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
 
                 {/* Panel to manage all tags */}
                 {isEditable && editingTags && tagsShown && (
