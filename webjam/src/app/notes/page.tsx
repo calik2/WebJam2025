@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import StickyNote from "./stickynote";
+import { motion } from "framer-motion";
+
 import { useState, useEffect } from "react";
 
 export default function NotesPage() {
@@ -10,18 +12,17 @@ export default function NotesPage() {
 
   const getNotes = async () => {
     const res = await fetch(`${baseUrl}/api/get_all_entries`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      }
-    )
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
     const data = await res.json();
-    setNotes(data.body)
-  } 
+    setNotes(data.body);
+  };
   useEffect(() => {
-      getNotes()
-  }, [])
+    getNotes();
+  }, []);
 
   return (
     <>
@@ -84,33 +85,28 @@ export default function NotesPage() {
               Notes
             </Link>
           </li>
-          <li>
-            <Link
-              href="/learn"
-              style={{
-                color: "#353D48",
-                textAlign: "center",
-                fontFamily: "Nunito",
-                fontSize: "19px",
-                fontStyle: "normal",
-                fontWeight: 400,
-                lineHeight: "19px",
-              }}
-            >
-              Learn
-            </Link>
-          </li>
         </ul>
       </nav>
 
-      <div className="flex p-8 ">
-        <h1 className="text-3xl font-semibold">Your Notes of Learning</h1>
-      </div>
-      <div className="columns-4 sm:columns-2 lg:columns-4 gap-6 p-10">
-        {notes.map((note, index) => (
-          <StickyNote key={index} date={note.date} content={note.description} />
-        ))}
-      </div>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 1 }}
+      >
+        <div className="flex p-8 ">
+          <h1 className="text-3xl font-semibold">Your Notes of Learning</h1>
+        </div>
+        <div className="columns-4 sm:columns-2 lg:columns-4 gap-6 p-10">
+          {notes.map((note, index) => (
+            <StickyNote
+              key={note.id ?? index}
+              date={note.date}
+              content={note.description}
+              index={index}
+            />
+          ))}
+        </div>
+      </motion.div>
     </>
   );
 }
