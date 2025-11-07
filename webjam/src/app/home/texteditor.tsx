@@ -120,6 +120,15 @@ export default function HeaderAndBody() {
     if (bodyeditor) bodyeditor.setEditable(isEditable);
   }, [isEditable, headereditor, bodyeditor]);
 
+  useEffect(() => {
+    if (bodyeditor && entry.description) {
+      bodyeditor.commands.setContent(entry.description);
+    }
+    if (headereditor && entry.title) {
+      headereditor.commands.setContent(entry.title);
+    }
+  }, [entry, bodyeditor, headereditor]);
+
   const handleSave = async () => {
     if (bodyeditor) {
       const date = new Date();
@@ -136,31 +145,29 @@ export default function HeaderAndBody() {
       if (headereditor) headereditor.view.dom.style.fontSize = "30px";
       console.log("Saved content:", content);
 
-      if (isEdit) {
-        // Write updates to DB
+      if (entry.entry_id) {
+        // Entry exists → update
         const res = await fetch(`${baseUrl}/api/update_entry`, {
           method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
+            entry_id: entry.entry_id,
             uid: uidHardcoded,
             date: date.toLocaleDateString(),
-            title: "N/A",
+            title: headereditor?.getText(),
             description: content,
           }),
         });
-        const data = await res.json();
+        await res.json();
       } else {
+        // No entry yet → add new
         const res = await fetch(`${baseUrl}/api/add_entry`, {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             uid: uidHardcoded,
             date: date.toLocaleDateString(),
-            title: "N/A",
+            title: headereditor?.getText(),
             description: content,
           }),
         });
