@@ -9,7 +9,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const supabase = createClient(req, res)
   const { data: { user } } = await supabase.auth.getUser();
 
-  const { date } = req.query;
+  const { uid, date } = req.query;
   
   // TODO: read cookies to get the uid
   const { data: entry, error } = await supabase
