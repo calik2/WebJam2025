@@ -11,6 +11,7 @@ export default function NotesPage() {
   const [allTags, setAllTags] = useState<{ tag_id: number; name: string }[]>([]);
   const [tagsMap, setTagsMap] = useState<{ [id: number]: string }>({});
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
 
   const getNotes = async () => {
     const resEntries = await fetch(`${baseUrl}/api/get_all_entries`);
@@ -49,9 +50,15 @@ export default function NotesPage() {
     getNotes();
   }, []);
 
-  const filteredNotes = selectedTag
-    ? notes.filter((note) => note.tagNames?.includes(selectedTag))
-    : notes;
+  // Filter notes by selected tag and search query
+  const filteredNotes = notes.filter((note) => {
+    const matchesTag = selectedTag ? note.tagNames?.includes(selectedTag) : true;
+    const matchesSearch =
+      searchQuery === "" ||
+      note.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      note.description.toLowerCase().includes(searchQuery.toLowerCase());
+    return matchesTag && matchesSearch;
+  });
 
   return (
     <>
@@ -148,8 +155,19 @@ export default function NotesPage() {
       </motion.div>
 
       {/* Fixed bottom tag bar */}
-      <div className="fixed bottom-6 right-6 flex flex-wrap gap-2 z-50">
+      <div className="fixed bottom-0 right-4 flex flex-col gap-2 z-50 p-4">
+        {/* Search bar */}
+        <div className="flex justify-center w-full">
+          <input
+            type="text"
+            placeholder="Search by keyword..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="border rounded-full px-4 py-2 w-64 focus:outline-none focus:border-[#E48ABF]"
+          />
+        </div>
         {/* "All" bubble */}
+        <div className="flex flex-wrap gap-2 justify-center mt-2">
         <div
           className={`px-4 py-1 rounded-full border cursor-pointer text-sm transition ${
             selectedTag === null
@@ -175,6 +193,7 @@ export default function NotesPage() {
             {tag.name}
           </div>
         ))}
+        </div>
       </div>
     </>
   );
