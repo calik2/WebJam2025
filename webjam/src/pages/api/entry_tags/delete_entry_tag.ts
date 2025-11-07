@@ -1,20 +1,20 @@
 import type {NextApiRequest, NextApiResponse} from 'next'
 import createClient from '@/utils/supabase/api'
 
-export default async function delete_tag(req: NextApiRequest, res: NextApiResponse) {
+export default async function delete_entry_tag(req: NextApiRequest, res: NextApiResponse) {
     if (req.method !== 'DELETE') {
         res.status(405).appendHeader('Allow', 'DELETE').end()
         return
     }
 
     const supabase = createClient(req, res)
-    const { uid, name } = req.body
+    const { tag_id, entry_id } = req.body
 
     const { data, error } = await supabase
-        .from('tags')
+        .from('entry_tags')
         .delete()
-        .eq('uid', uid)
-        .eq('name', name)
+        .eq('tag_id', tag_id)
+        .eq('entry_id', entry_id)
         .select('*')
 
     if (error) {
