@@ -5,33 +5,21 @@ import StickyNote from "./stickynote";
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
 import { redirect } from "next/navigation";
-import { createClient } from '@/utils/supabase/server'
 
-async function fetch_data() {
-  const supabase = await createClient()
-  const { data, error: auth_error } = await supabase.auth.getUser()
-  
-  if (auth_error || !data?.user) {
-    console.log(data)
-    redirect("/login")
-  }
-  
-  let query = supabase
-      .from("entries")
-      .select()
-      .eq('uid', data.user.id);
-
-  const { data: notes } = await query
-  return notes
-}
 
 export default function NotesPage() {
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
   const [notes, setNotes] = useState<any[]>([]);
 
   const getNotes = async () => {
-    const data = await fetch_data() ?? []
-    setNotes(data);
+    const res = await fetch(`${baseUrl}/api/get_all_entries`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    const data = await res.json();
+    setNotes(data.body);
   };
   useEffect(() => {
     getNotes();

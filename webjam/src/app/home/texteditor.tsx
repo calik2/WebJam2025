@@ -242,7 +242,7 @@ export default function HeaderAndBody() {
     const fetchEntryAndTags = async () => {
       // Fetch today's entry
       const res = await fetch(
-        `${baseUrl}/api/get_entry?uid=${uidHardcoded}&date=${today}`
+        `${baseUrl}/api/get_entry?&date=${today}`
       );
       const data = await res.json();
       setEntry(data.body);
@@ -258,7 +258,7 @@ export default function HeaderAndBody() {
 
       // Fetch all tags for user
       const resAll = await fetch(
-        `${baseUrl}/api/tags/get_all_tags?uid=${uidHardcoded}`
+        `${baseUrl}/api/tags/get_all_tags`
       );
       const dataAll = await resAll.json();
       const allTagsData = dataAll.body || [];
