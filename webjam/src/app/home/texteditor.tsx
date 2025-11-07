@@ -13,6 +13,7 @@ export default function HeaderAndBody() {
 
   const [isEditable, setIsEditable] = useState(true);
   const [tagsShown, setTagsShown] = useState(false);
+  const [isEdit, setIsEdit] = useState(false);
 
   const [labels, setLabels] = useState<string[]>(() => {
     if (typeof window !== "undefined") {
@@ -21,6 +22,11 @@ export default function HeaderAndBody() {
     return [];
   });
 
+  // Load from localStorage
+  // const savedContent =
+  //   typeof window !== "undefined" ? localStorage.getItem("paper-tiptap") : "";
+  // const initialContent =
+  //   savedContent && savedContent.trim() !== "<p></p>" ? savedContent : "";
   // Load from localStorage
   const [selectedTag, setSelectedTag] = useState<string | null>(() => {
     if (typeof window !== "undefined") {
@@ -34,8 +40,16 @@ export default function HeaderAndBody() {
     typeof window !== "undefined" ? localStorage.getItem("body-tiptap") : "";
   const savedHeader =
     typeof window !== "undefined" ? localStorage.getItem("header-tiptap") : "";
+  const savedDate =
+    typeof window !== "undefined"
+      ? localStorage.getItem("paper-tiptap-date")
+      : "";
+  const today = new Date().toLocaleDateString();
+
   const initialContent =
-    savedContent && savedContent.trim() !== "<p></p>" ? savedContent : "";
+    savedContent && savedDate === today && savedContent.trim() !== "<p></p>"
+      ? savedContent
+      : "";
 
   const bodyeditor = useEditor({
     extensions: [
@@ -103,22 +117,69 @@ export default function HeaderAndBody() {
     if (bodyeditor) bodyeditor.setEditable(isEditable);
   }, [isEditable, headereditor, bodyeditor]);
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (bodyeditor) {
+      const date = new Date();
+
+      const content = bodyeditor.getText();
+      localStorage.setItem("paper-tiptap-date", date.toLocaleDateString()); // save content
       localStorage.setItem("body-tiptap", bodyeditor.getHTML()); // save content
       localStorage.setItem("header-tiptap", headereditor?.getHTML() || ""); // save content
       setIsEditable(false); // lock editor
-      setTagsShown(true);
-      bodyeditor.view.dom.style.color = "#171717";
+      console.log("Saved content:", content);
+
+      // Write to DB
+      const baseUrl =
+        process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+
+      if (isEdit) {
+        // Write updates to DB
+        const res = await fetch(`${baseUrl}/api/update_entry`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            uid: "b713dfe0-ed34-4a45-8681-bbbb1dadc662",
+            date: date.toLocaleDateString(),
+            title: "N/A",
+            description: content,
+          }),
+        });
+        const data = await res.json();
+      } else {
+        const res = await fetch(`${baseUrl}/api/add_entry`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            uid: "b713dfe0-ed34-4a45-8681-bbbb1dadc662",
+            date: date.toLocaleDateString(),
+            title: "N/A",
+            description: content,
+          }),
+        });
+        const data = await res.json();
+      }
+
+      // TODO: IF IT DIDN'T SAVE -> DISPLAY SOME KIND OF MESSAGE
+      // TODO: NEED TO UPDATE SO THAT AFTER LEAVING HOME AND GOING TO NOTES, IF A NOTE WAS SAVED WE WANT TO SHOW EDIT NOT JUST SAVE
     }
-    if (headereditor) headereditor.view.dom.style.color = "#171717";
   };
 
-  const handleEdit = () => {
-    setIsEditable(true); // unlock editor
-    setTagsShown(false);
+  const handleEdit = async () => {
+    if (bodyeditor) {
+      const content = bodyeditor.getHTML();
+
+      setIsEditable(true); // unlock editor
+      console.log("edit content:", content);
+      setIsEdit(true);
+      setTagsShown(true);
+      bodyeditor.view.dom.style.color = "#77777B";
+    }
+
     if (headereditor) headereditor.view.dom.style.color = "#77777B";
-    if (bodyeditor) bodyeditor.view.dom.style.color = "#77777B";
   };
 
   const handleAddTag = () => {
