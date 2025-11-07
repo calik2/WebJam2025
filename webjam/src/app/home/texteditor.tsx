@@ -127,7 +127,12 @@ export default function HeaderAndBody() {
       localStorage.setItem("paper-tiptap-date", date.toLocaleDateString()); // save content
       localStorage.setItem("body-tiptap", bodyeditor.getHTML()); // save content
       localStorage.setItem("header-tiptap", headereditor?.getHTML() || ""); // save content
+      setTagsShown(true);
       setIsEditable(false); // lock editor
+      bodyeditor.view.dom.style.color = "#353D48";
+      bodyeditor.view.dom.style.fontSize = "40px";
+      if (headereditor) headereditor.view.dom.style.color = "#353D48";
+      if (headereditor) headereditor.view.dom.style.fontSize = "30px";
       console.log("Saved content:", content);
 
       if (isEdit) {
@@ -173,11 +178,13 @@ export default function HeaderAndBody() {
       setIsEditable(true); // unlock editor
       console.log("edit content:", content);
       setIsEdit(true);
-      setTagsShown(true);
+      setTagsShown(false);
       bodyeditor.view.dom.style.color = "#77777B";
+      bodyeditor.view.dom.style.fontSize = "30px";
     }
 
     if (headereditor) headereditor.view.dom.style.color = "#77777B";
+    if (headereditor) headereditor.view.dom.style.fontSize = "25px";
   };
 
   const handleAddTag = async () => {
@@ -236,21 +243,28 @@ export default function HeaderAndBody() {
             month: "long",
             day: "numeric",
           })}
+          <div className="font-normal font-[var(--font-sans)] ">
+            <EditorContent editor={bodyeditor} />
+          </div>
         </div>
-        <div className="w-full max-w-4xl ">
-          <EditorContent editor={bodyeditor} />
-        </div>
+
         <div className="flex justify-between items-end space-y-4 w-full max-w-4xl p-4 text-xl">
           {isEditable ? (
             <>
-              <button className="px-4 py-2 rounded-md" onClick={handleSave}>
-                Save
+              <button
+                className="px-4 py-2 rounded-4xl outline outline-solid hover:outline-2 duration-300 ease-in-out hover:scale-105 transition"
+                onClick={handleSave}
+              >
+                save
               </button>
             </>
           ) : (
             <>
-              <button className="px-4 py-2 rounded-md " onClick={handleEdit}>
-                Edit
+              <button
+                className="px-4 py-2 rounded-4xl outline outline-solid hover:outline-2 duration-300 ease-in-out hover:scale-105 transition"
+                onClick={handleEdit}
+              >
+                edit
               </button>
             </>
           )}
@@ -264,7 +278,7 @@ export default function HeaderAndBody() {
                         labels.map((label, i) => (
                           <div
                             key={i}
-                            className="px-4 py-2  rounded-xl hover:bg-gray-300 dark:hover:bg-gray-700 transition-all"
+                            className="px-4 py-2 rounded-xl hover:bg-gray-300 outline outline-dotted transition-all"
                           >
                             <button onClick={() => handleSelectTag(label)}>
                               {label}
@@ -279,7 +293,7 @@ export default function HeaderAndBody() {
                         ))
                       ) : (
                         <div className="text-gray-500 italic">
-                          No tags yet — create one below.
+                          create a tag!
                         </div>
                       )}
 
@@ -292,7 +306,7 @@ export default function HeaderAndBody() {
                         />
                         <button
                           onClick={handleAddTag}
-                          className="bg-lightgray-500 opacity-75 px-3 py-1 rounded-md"
+                          className="bg-lightgray-500 opacity-75 px-3 py-1 rounded-4xl outline outline-solid hover:outline-2 duration-300 ease-in-out hover:scale-105 transition"
                         >
                           Add
                         </button>

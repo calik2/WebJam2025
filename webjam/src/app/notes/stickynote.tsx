@@ -2,10 +2,12 @@ export default function StickyNote({
   date,
   content,
   header,
+  index,
 }: {
   date: number;
   content: string;
   header?: string;
+  index: number;
 }) {
   const chooseColor = () => {
     const colors = [
@@ -14,10 +16,10 @@ export default function StickyNote({
       "bg-blue-200",
       "bg-green-200",
     ];
-    return colors[date % colors.length];
+    return colors[index % colors.length];
   };
   return (
-    <div className="flex flex-col items-center gap-3 break-inside-avoid">
+    <div className="flex flex-col items-center gap-3 break-inside-avoid hover:scale-105 transition-transform duration-300">
       {header && <div className="font-bold mt-9">{header}</div>}
 
       <div
