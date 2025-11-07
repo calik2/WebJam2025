@@ -157,13 +157,18 @@ export default function NotesPage() {
       {/* Fixed bottom tag bar */}
       <div className="fixed bottom-0 right-4 flex flex-col gap-2 z-50 p-4">
         {/* Search bar */}
-        <div className="flex justify-center w-full">
+        <div className="flex justify-end w-full">
           <input
             type="text"
             placeholder="Search by keyword..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="border rounded-full px-4 py-2 w-64 focus:outline-none focus:border-[#E48ABF]"
+            className="search-input rounded-full px-4 py-2 w-64 focus:outline-none focus:border-[#E48ABF]"
+            style={{ 
+              fontFamily: "var(--font-nunito-sans), sans-serif",
+              border: "1px solid #9CA3AF",
+              color: "#111827"
+            }}
           />
         </div>
         {/* "All" bubble */}
@@ -171,10 +176,16 @@ export default function NotesPage() {
         <div
           className={`px-4 py-1 rounded-full border cursor-pointer text-sm transition ${
             selectedTag === null
-              ? "bg-[#E48ABF] text-white border-[#E48ABF]"
-              : "bg-white text-[#E48ABF] border-[#E48ABF]"
+              ? "text-white border-[#E48ABF]"
+              : "text-[#E48ABF] border-[#E48ABF]"
           }`}
           onClick={() => setSelectedTag(null)}
+          style={{ 
+            fontFamily: "var(--font-nunito-sans), sans-serif",
+            backgroundColor: selectedTag === null 
+              ? "rgba(228, 138, 191, 0.5)" 
+              : "rgba(255, 255, 255, 0.5)"
+          }}
         >
           all tags
         </div>
@@ -183,12 +194,26 @@ export default function NotesPage() {
         {allTags.map((tag) => (
           <div
             key={tag.tag_id}
-            className={`px-4 py-1 rounded-full border cursor-pointer text-sm transition ${
-              selectedTag === tag.name
-                ? "bg-[#E48ABF] text-white border-[#E48ABF]"
-                : "bg-white text-[#E48ABF] border-[#E48ABF] hover:bg-[#FCE2ED]"
-            }`}
+            className="px-4 py-1 rounded-full border cursor-pointer text-sm transition"
             onClick={() => setSelectedTag(tag.name)}
+            style={{ 
+              fontFamily: "var(--font-nunito-sans), sans-serif",
+              backgroundColor: selectedTag === tag.name
+                ? "rgba(156, 163, 175, 0.5)"
+                : "rgba(255, 255, 255, 0.5)",
+              borderColor: "#9CA3AF",
+              color: "#9CA3AF"
+            }}
+            onMouseEnter={(e) => {
+              if (selectedTag !== tag.name) {
+                e.currentTarget.style.backgroundColor = "rgba(229, 231, 235, 0.5)";
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (selectedTag !== tag.name) {
+                e.currentTarget.style.backgroundColor = "rgba(255, 255, 255, 0.5)";
+              }
+            }}
           >
             {tag.name}
           </div>

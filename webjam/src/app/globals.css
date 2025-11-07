@@ -88,3 +88,7 @@ button[data-glow="true"]:hover::after {
   text-shadow: 0 2px 12px rgba(0, 0, 0, 0.1), 0 0 20px rgba(248, 225, 191, 0.8), 0 0 30px rgba(248, 225, 191, 0.6) !important;
 }
 
+.search-input::placeholder {
+  color: #9CA3AF;
+}
+
