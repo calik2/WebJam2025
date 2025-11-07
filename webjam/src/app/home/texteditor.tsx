@@ -10,7 +10,6 @@ import Tag from "./tag";
 
 export default function HeaderAndBody() {
   const date = new Date();
-  const uidHardcoded = "b713dfe0-ed34-4a45-8681-bbbb1dadc662";
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
 
   const [isEditable, setIsEditable] = useState(true);
@@ -232,7 +231,7 @@ export default function HeaderAndBody() {
     await fetch(`${baseUrl}/api/tags/delete_tag`, {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ uid: uidHardcoded, tag_id }),
+      body: JSON.stringify({ tag_id }),
     });
     setAllTags((prev) => prev.filter((t) => t.tag_id !== tag_id));
     setEntryTags((prev) => prev.filter((t) => t.tag_id !== tag_id));
