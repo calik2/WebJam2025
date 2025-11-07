@@ -8,14 +8,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
   const supabase = createClient(req, res)
 
-  const { date } = req.query;
+  const { uid, date } = req.query;
   
   // TODO: read cookies to get the uid
   const { data: entry, error } = await supabase
     .from("entries")
     .select()
-    .eq('uid', 'b713dfe0-ed34-4a45-8681-bbbb1dadc662')
-    .eq('date', date);  
+    .eq('uid', uid)
+    .eq('date', date)
+    .single();
   
   if (error) {
     res.status(500).json({ error: error.message })

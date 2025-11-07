@@ -16,21 +16,20 @@ export default function HeaderAndBody() {
   const [isEditable, setIsEditable] = useState(true);
   const [tagsShown, setTagsShown] = useState(true);
   const [isEdit, setIsEdit] = useState(false);
+  const [entry, setEntry] = useState<{ entry_id: number; date: string; title: string; description: string; uid: string; }>({ entry_id: 0, date: "", title: "", description: "", uid: ""});
+  const [entryTags, setEntryTags] = useState<{ tag_id: number; }[]>([]);
+  const [allTags, setAllTags] = useState<{ tag_id: number; name: string }[]>([]);
+  const [editingTags, setEditingTags] = useState(false); // edit mode toggle
+  const [newTagName, setNewTagName] = useState(""); // for adding new tag
+  const [tagsMap, setTagsMap] = useState<{ [tagId: number]: string }>({});
 
-  const [labels, setLabels] = useState<string[]>(() => {
-    if (typeof window !== "undefined") {
-      return JSON.parse(localStorage.getItem("labels") || "[]");
-    }
-    return [];
-  });
 
-  // Load from localStorage
-  const [selectedTag, setSelectedTag] = useState<string | null>(() => {
-    if (typeof window !== "undefined") {
-      return localStorage.getItem("selectedTag");
-    }
-    return null;
-  });
+  // const [labels, setLabels] = useState<string[]>(() => {
+  //   if (typeof window !== "undefined") {
+  //     return JSON.parse(localStorage.getItem("labels") || "[]");
+  //   }
+  //   return [];
+  // });
 
   const [newTag, setNewTag] = useState("");
   const savedHeader =
@@ -170,54 +169,90 @@ export default function HeaderAndBody() {
     }
   };
 
-  const handleAddTag = async () => {
-    if (!newTag.trim()) return;
-
-    const res = await fetch(`${baseUrl}/api/update_entry`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({uid: uidHardcoded, name: newTag}),
-      }
-    )
+  // Add new tag to DB
+  const handleAddNewTag = async () => {
+    if (!newTagName.trim()) return;
+    const res = await fetch(`${baseUrl}/api/tags/add_tag`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ uid: uidHardcoded, name: newTagName }),
+    });
     const data = await res.json();
-    const updated = [...labels, newTag];
-    setLabels(updated);
-    localStorage.setItem("labels", JSON.stringify(updated));
-    setNewTag("");
+    setAllTags([...allTags, data.tag]);
+    setNewTagName("");
   };
 
-  const handleGetTags = async () => {
-    const res = await fetch(`${baseUrl}/api/update_entry`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({uid: uidHardcoded, name: newTag}),
+  // Remove tag from this entry
+  const handleRemoveTagFromEntry = async (tag_id: number) => {
+    await fetch(`${baseUrl}/api/entry_tags/delete_entry_tag`, {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ entry_id: entry.entry_id, tag_id: tag_id }),
+    });
+    setEntryTags(entryTags.filter((t) => t.tag_id !== tag_id));
+  };
+
+  // Add existing tag to this entry
+  const handleAddTagToEntry = async (tag_id: number) => {
+    await fetch(`${baseUrl}/api/entry_tags/add_entry_tag`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ entry_id: entry.entry_id, tag_id }),
+    });
+    const tag = allTags.find((t) => t.tag_id === tag_id);
+    if (tag) setEntryTags([...entryTags, tag]);
+  };
+
+  // Delete tag completely from DB
+  const handleDeleteTagFromDB = async (tag_id: number) => {
+    await fetch(`${baseUrl}/api/tags/delete_tag`, {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ uid: uidHardcoded, tag_id }),
+    });
+    setAllTags(allTags.filter((t) => t.tag_id !== tag_id));
+    setEntryTags(entryTags.filter((t) => t.tag_id !== tag_id));
+  };
+
+  const getTagById = async (tagId: number) => {
+    const res = await fetch(`/api/tags/get_tag?tag_id=${tagId}`);
+    const data = await res.json();
+    return data.tag.body.name;
+  };
+
+  //get tags when loading
+  useEffect(() => {
+    const fetchEntryAndTags = async () => {
+      // Fetch today's entry
+      const res = await fetch(`${baseUrl}/api/get_entry?uid=${uidHardcoded}&date=${today}`);
+      const data = await res.json();
+      setEntry(data.body);
+
+      // Fetch tags for this entry
+      if (data.body?.entry_id) {
+        const resEntryTags = await fetch(
+          `${baseUrl}/api/entry_tags/get_entry_tag?entry_id=${data.body.entry_id}`
+        );
+        const tagsData = await resEntryTags.json();
+        setEntryTags(tagsData.body || []);
       }
-    )
-  }
 
-  // When a tag is selected
-  const handleSelectTag = (tag: string) => {
-    if (selectedTag) return; // Only allow selecting a tag if none is selected
-    setSelectedTag(tag);
-    localStorage.setItem("selectedTag", tag);
-  };
+      // Fetch all tags for user
+      const resAll = await fetch(`${baseUrl}/api/tags/get_all_tags?uid=${uidHardcoded}`);
+      const dataAll = await resAll.json();
+      const allTagsData = dataAll.body || [];
+      setAllTags(allTagsData);
 
-  const handleDeleteTag = (tag: string) => {
-    if (!selectedTag) return; // Only allow deleting a tag if a tag is selected
+      // Build map of tag_id → name
+      const map: { [tagId: number]: string } = {};
+      allTagsData.forEach((t: { tag_id: number; name: string }) => {
+        map[t.tag_id] = t.name;
+      });
+      setTagsMap(map);
+    };
 
-    setSelectedTag(null);
-    localStorage.removeItem("selectedTag");
-  };
-
-  const removeTag = (tag: string) => {
-    const updated = labels.filter((t) => t !== tag);
-    setLabels(updated);
-    localStorage.setItem("labels", JSON.stringify(updated));
-  };
+    fetchEntryAndTags();
+  }, []);
 
   return (
     <>
@@ -247,58 +282,87 @@ export default function HeaderAndBody() {
             </>
           )}
           <div className=" flex-1 px-8 text-right">
-            {tagsShown && (
-              <div className="flex flex-col items-end space-y-3">
-                {!selectedTag ? (
-                  <>
-                    <div className="flex flex-wrap justify-center gap-3">
-                      {labels.length > 0 ? (
-                        labels.map((label, i) => (
-                          <div
-                            key={i}
-                            className="px-4 py-2  rounded-xl hover:bg-gray-300 dark:hover:bg-gray-700 transition-all"
-                          >
-                            <button onClick={() => handleSelectTag(label)}>
-                              {label}
-                            </button>
-                            <button
-                              className="ml-2 text-red-500 hover:text-red-700"
-                              onClick={() => removeTag(label)}
-                            >
-                              x
-                            </button>
-                          </div>
-                        ))
-                      ) : (
-                        <div className="text-gray-500 italic">
-                          No tags yet — create one below.
-                        </div>
-                      )}
-
-                      <div className="flex space-x-2">
-                        <input
-                          value={newTag}
-                          onChange={(e) => setNewTag(e.target.value)}
-                          placeholder="New tag incoming..."
-                          className="border rounded-md px-3 py-1"
-                        />
+            <div className="flex flex-col space-y-3 mt-4">
+              {/* Current tags for this entry */}
+              <div className="flex flex-wrap gap-2">
+                {entryTags.length > 0 ? (
+                  entryTags.map((tag) => (
+                    <div
+                      key={tag.tag_id}
+                      className="flex items-center bg-gray-100 px-3 py-1 rounded"
+                    >
+                      <span>{tagsMap[tag.tag_id]}</span>
+                      {editingTags && (
                         <button
-                          onClick={handleAddTag}
-                          className="bg-lightgray-500 opacity-75 px-3 py-1 rounded-md"
+                          onClick={() => handleRemoveTagFromEntry(tag.tag_id)}
+                          className="ml-2 text-red-500 hover:text-red-700"
                         >
-                          Add
+                          -
                         </button>
-                      </div>
+                      )}
                     </div>
-                  </>
+                  ))
                 ) : (
-                  <Tag
-                    label={selectedTag}
-                    onClick={() => handleDeleteTag(selectedTag)}
-                  />
+                  <span className="text-gray-500 italic">No tags yet</span>
                 )}
+                <button
+                  onClick={() => setEditingTags(!editingTags)}
+                  className="ml-2 px-2 py-1 bg-gray-200 rounded hover:bg-gray-300"
+                >
+                  {editingTags ? "Done" : "Edit"}
+                </button>
               </div>
-            )}
+
+              {/* Panel to manage all tags */}
+              {editingTags && (
+                <div className="flex flex-col space-y-2 mt-2 p-2 border rounded bg-gray-50">
+                  {/* Add new tag */}
+                  <div className="flex space-x-2">
+                    <input
+                      type="text"
+                      value={newTagName}
+                      onChange={(e) => setNewTagName(e.target.value)}
+                      placeholder="New tag..."
+                      className="border rounded px-3 py-1 flex-1"
+                    />
+                    <button
+                      onClick={handleAddNewTag}
+                      className="px-3 py-1 bg-green-200 rounded hover:bg-green-300"
+                    >
+                      Add
+                    </button>
+                  </div>
+
+                  {/* Add existing tag to today’s entry */}
+                  <div className="flex flex-wrap gap-2">
+                    {allTags
+                      .filter((t) => !entryTags.some((et) => et.tag_id === t.tag_id))
+                      .map((tag) => (
+                        <button
+                          key={tag.tag_id}
+                          onClick={() => handleAddTagToEntry(tag.tag_id)}
+                          className="bg-gray-200 px-3 py-1 rounded hover:bg-gray-300"
+                        >
+                          + {tag.name}
+                        </button>
+                      ))}
+                  </div>
+
+                  {/* Optional: Delete tag completely from DB */}
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    {allTags.map((tag) => (
+                      <button
+                        key={tag.tag_id}
+                        onClick={() => handleDeleteTagFromDB(tag.tag_id)}
+                        className="bg-red-200 px-3 py-1 rounded hover:bg-red-300"
+                      >
+                        Delete {tag.name}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
