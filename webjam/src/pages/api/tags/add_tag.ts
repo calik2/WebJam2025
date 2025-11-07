@@ -8,7 +8,10 @@ export default async function add_tag(req: NextApiRequest, res: NextApiResponse)
     }
 
     const supabase = createClient(req, res)
-    const { name, uid } = req.body
+    const { data: { user } } = await supabase.auth.getUser();
+    const uid = user?.id
+
+    const { name } = req.body
 
     const { data, error } = await supabase
         .from('tags')

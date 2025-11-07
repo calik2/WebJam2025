@@ -135,7 +135,7 @@ export default function HeaderAndBody() {
             headers: {
               'Content-Type': 'application/json',
             },
-            body: JSON.stringify({uid: "b713dfe0-ed34-4a45-8681-bbbb1dadc662", date: date.toLocaleDateString(), title: "N/A", description: content}),
+            body: JSON.stringify({date: date.toLocaleDateString(), title: "N/A", description: content}),
           }
         )
         const data = await res.json();
@@ -147,7 +147,7 @@ export default function HeaderAndBody() {
             headers: {
               'Content-Type': 'application/json',
             },
-            body: JSON.stringify({uid: "b713dfe0-ed34-4a45-8681-bbbb1dadc662", date: date.toLocaleDateString(), title: "N/A", description: content}),
+            body: JSON.stringify({date: date.toLocaleDateString(), title: "N/A", description: content}),
           }
         )
         const data = await res.json();

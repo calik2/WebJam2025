@@ -7,13 +7,15 @@ export default async function get_all_tags(req: NextApiRequest, res: NextApiResp
     return
   }
   const supabase = createClient(req, res)
+  const { data: { user } } = await supabase.auth.getUser();
+
   
   const { } = req.query;
 
   let query = supabase
       .from("tags")
       .select()
-      .eq('uid', 'ff47c2bd-3de5-4daa-a782-655a8e1a09a8');
+      .eq('uid', user?.id);
 
   // TODO: read cookies to get the uid
   const { data: entries, error } = await query
