@@ -178,7 +178,7 @@ export default function HeaderAndBody() {
       body: JSON.stringify({ uid: uidHardcoded, name: newTagName }),
     });
     const data = await res.json();
-    setAllTags([...allTags, data.tag]);
+    setAllTags([...allTags, data.user]);
     setNewTagName("");
   };
 
@@ -210,14 +210,8 @@ export default function HeaderAndBody() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ uid: uidHardcoded, tag_id }),
     });
-    setAllTags(allTags.filter((t) => t.tag_id !== tag_id));
-    setEntryTags(entryTags.filter((t) => t.tag_id !== tag_id));
-  };
-
-  const getTagById = async (tagId: number) => {
-    const res = await fetch(`/api/tags/get_tag?tag_id=${tagId}`);
-    const data = await res.json();
-    return data.tag.body.name;
+    setAllTags((prev) => prev.filter((t) => t.tag_id !== tag_id));
+    setEntryTags((prev) => prev.filter((t) => t.tag_id !== tag_id));
   };
 
   //get tags when loading
@@ -256,6 +250,8 @@ export default function HeaderAndBody() {
 
   return (
     <>
+    
+    {console.log(allTags)}
       <div className="flex flex-col justify-center items-start min-h-screen px-8 py-4 space-y-6 rounded-lg max-w-4xl mx-auto my-10 bg-transparent">
         <div className="text-xl text-[#A5A5A3] font-semibold font-[var(--font-sans)]">
           {date.toLocaleDateString(undefined, {
@@ -335,8 +331,9 @@ export default function HeaderAndBody() {
 
                   {/* Add existing tag to today’s entry */}
                   <div className="flex flex-wrap gap-2">
-                    {allTags
-                      .filter((t) => !entryTags.some((et) => et.tag_id === t.tag_id))
+                    {allTags.filter(
+                        (t) =>t && t.tag_id && !entryTags.some((et) => et && et.tag_id && et.tag_id === t.tag_id)
+                      )
                       .map((tag) => (
                         <button
                           key={tag.tag_id}

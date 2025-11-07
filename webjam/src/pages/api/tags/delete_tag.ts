@@ -8,13 +8,13 @@ export default async function delete_tag(req: NextApiRequest, res: NextApiRespon
     }
 
     const supabase = createClient(req, res)
-    const { uid, name } = req.body
+    const { uid, tag_id } = req.body
 
     const { data, error } = await supabase
         .from('tags')
         .delete()
         .eq('uid', uid)
-        .eq('name', name)
+        .eq('tag_id', tag_id)
         .select('*')
 
     if (error) {
