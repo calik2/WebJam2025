@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { motion } from "framer-motion";
 
 import HeaderAndBody from "./texteditor";
 
@@ -49,6 +50,7 @@ export default function Homepage() {
                 fontWeight: 400,
                 lineHeight: "19px",
               }}
+              className="inline-block text-[#353D48] text-lg font-semibold font-sans text-center rounded-lg transition duration-300 ease-in-out hover:opacity-80 hover:scale-105"
             >
               Home
             </Link>
@@ -65,32 +67,21 @@ export default function Homepage() {
                 fontWeight: 400,
                 lineHeight: "19px",
               }}
+              className="inline-block text-[#353D48] text-lg font-semibold font-sans text-center rounded-lg transition duration-300 ease-in-out hover:opacity-80 hover:scale-105"
             >
               Notes
-            </Link>
-          </li>
-          <li>
-            <Link
-              href="/learn"
-              style={{
-                color: "#353D48",
-                textAlign: "center",
-                fontFamily: "Nunito",
-                fontSize: "19px",
-                fontStyle: "normal",
-                fontWeight: 400,
-                lineHeight: "19px",
-              }}
-            >
-              Learn
             </Link>
           </li>
         </ul>
       </nav>
       {/* want this to be properly centered, also want the date above the  */}
-      <div>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 1 }}
+      >
         <HeaderAndBody />
-      </div>
+      </motion.div>
     </div>
   );
 }
