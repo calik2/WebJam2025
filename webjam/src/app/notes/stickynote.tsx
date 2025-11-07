@@ -14,7 +14,7 @@ export default function StickyNote({
     return colors[index % colors.length];
   };
   return (
-    <div className="flex flex-col items-center gap-3 break-inside-avoid hover:scale-105 transition-transform duration-300">
+    <div className="flex flex-col items-center gap-3 break-inside-avoid hover:scale-105 transition-transform duration-300" style={{ marginBottom: "50px" }}>
       {header && (
         <div className="mt-9 text-[16px] text-[#353D48] font-['Nunito'] font-normal">
           {header.replace(/<[^>]+>/g, "")}

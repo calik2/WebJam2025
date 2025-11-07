@@ -98,7 +98,7 @@ export default function NotesPage() {
         <div style={{ height: "90px" }}></div>
         <div
           className="columns-4 sm:columns-2 lg:columns-4 p-10"
-          style={{ columnGap: "11px" }}
+          style={{ columnGap: "15px" }}
         >
           {notes.map((note, index) => (
             <StickyNote

@@ -11,7 +11,7 @@ export default function LoginPage() {
         className="flex flex-col min-h-screen items-center justify-center px-4"
         style={{
           background:
-            "radial-gradient(40% 40% at 50% 65%, rgba(255, 202, 170, 0.4) 0%, rgba(236, 195, 212, 0.3) 30%, rgba(163, 189, 255, 0.25) 55%, rgba(123, 153, 221, 0.45) 75%, rgba(103, 136, 210, 0.65) 100%)",
+            "radial-gradient(60% 50% at 50% 65%, rgba(255, 202, 170, 0.7) 0%, rgba(255, 180, 150, 0.5) 20%, rgba(236, 195, 212, 0.3) 30%, rgba(163, 189, 255, 0.25) 55%, rgba(123, 153, 221, 0.45) 75%, rgba(103, 136, 210, 0.65) 100%)",
           backgroundColor: "#7f9fce",
         }}
       >
@@ -43,14 +43,14 @@ export default function LoginPage() {
               fontFeatureSettings: '"liga" 1, "calt" 1, "clig" 1',
             }}
           >
-            <motion.h1
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 1 }}
-            >
+          <motion.h1
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1 }}
+          >
             What did I learn today?
-            </motion.h1>
-          </div>
+          </motion.h1>
+        </div>
         </div>
         <form
           className="flex flex-col space-y-4 rounded-2xl shadow-lg w-full"
@@ -110,7 +110,8 @@ export default function LoginPage() {
               onMouseDown={() => setIsLogInClicked(true)}
               onMouseUp={() => setIsLogInClicked(false)}
               onMouseLeave={() => setIsLogInClicked(false)}
-              className="login-button"
+              className="login-button relative overflow-hidden transition duration-300 ease-in-out hover:scale-105"
+              data-glow="true"
               style={{
                 borderRadius: "36px",
                 background: "#6F90D1",
@@ -123,7 +124,7 @@ export default function LoginPage() {
                 fontSize: "20px",
                 border: "none",
                 cursor: "pointer",
-                transition: "box-shadow 0.2s ease",
+                transition: "box-shadow 0.2s ease, transform 0.3s ease-in-out",
                 boxShadow: isLogInClicked ? "0 4px 12px rgba(0, 0, 0, 0.3)" : "none",
               }}
             >
@@ -131,7 +132,8 @@ export default function LoginPage() {
             </button>
             <button
               formAction={signup}
-              className="signup-button"
+              className="signup-button relative overflow-hidden transition duration-300 ease-in-out hover:scale-105"
+              data-glow="true"
               style={{
                 borderRadius: "36px",
                 background: "#6F90D1",
@@ -144,7 +146,7 @@ export default function LoginPage() {
                 fontSize: "20px",
                 border: "none",
                 cursor: "pointer",
-                transition: "box-shadow 0.2s ease",
+                transition: "box-shadow 0.2s ease, transform 0.3s ease-in-out",
               }}
             >
               Sign up

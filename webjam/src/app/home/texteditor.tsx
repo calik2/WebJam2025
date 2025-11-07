@@ -17,7 +17,7 @@ export default function HeaderAndBody() {
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
 
   const [isEditable, setIsEditable] = useState(true);
-  const [tagsShown, setTagsShown] = useState(true);
+  const [tagsShown, setTagsShown] = useState(false);
   const [entry, setEntry] = useState<{
     entry_id: number;
     date: string;
@@ -295,9 +295,9 @@ export default function HeaderAndBody() {
 
   return (
     <>
-      <div className="flex flex-col justify-center items-start min-h-screen px-8 py-4 space-y-6 rounded-lg max-w-6xl mx-auto my-10 bg-transparent">
-        <div className="flex flex-col gap-4" style={{ width: "105%" }}>
-          <div className="flex flex-wrap items-center gap-4">
+      <div className="flex flex-col justify-center items-center min-h-screen px-8 py-4 space-y-6 rounded-lg max-w-6xl mx-auto my-10 bg-transparent">
+        <div className="flex flex-col gap-4" style={{ width: "105%", transform: "translateX(-30px)" }}>
+          <div className="flex flex-wrap items-center gap-4" style={{ width: "105%" }}>
             <div
               className="inline-flex items-center text-[16px] text-[#77777B] font-['Nunito'] tracking-wide"
             >
@@ -305,31 +305,31 @@ export default function HeaderAndBody() {
             </div>
             <div
               className="inline-flex ml-auto"
-              style={{ transform: "translateX(53px)" }}
             >
               <EditorContent editor={headereditor} />
             </div>
           </div>
 
-          <div className="font-normal font-[var(--font-sans)]">
+          <div className="font-normal font-[var(--font-sans)]" style={{ width: "105%", overflow: "visible" }}>
             <EditorContent editor={bodyeditor} />
           </div>
         </div>
 
-        <div className="flex justify-between items-center w-full max-w-4xl p-4 text-xl gap-6">
+        <div className="flex justify-between items-center pt-4 pb-4 text-xl gap-6" style={{ width: "105%", transform: "translateX(-30px)" }}>
           {/* tags */}
           {tagsShown && (
-              <div className="relative flex flex-col space-y-3">
+              <div className="relative flex flex-col space-y-3" style={{ transform: "translateX(-3px)" }}>
                 {/* Current tags for this entry */}
                 <div className="flex flex-wrap gap-2">
-                  {entryTags.length > 0 ? (
+                  {entryTags.length > 0 && (
                     entryTags.map((tag) => (
                       <div
                         key={tag.tag_id}
-                        className="flex items-center px-4 py-1 rounded-full text-[#62beff] border-1 transition duration-200 ease-in-out hover:scale-105"
+                        className="flex items-center px-4 py-1 rounded-full text-[#62beff] border-1"
+                        style={{ fontFamily: "var(--font-nunito-sans), sans-serif" }}
                       >
                         <span>{tagsMap[tag.tag_id]}</span>
-                        {editingTags && (
+                        {isEditable && editingTags && (
                           <button
                             onClick={() => handleRemoveTagFromEntry(tag.tag_id)}
                             className="ml-2 hover:text-[#2e74a7]"
@@ -339,48 +339,11 @@ export default function HeaderAndBody() {
                         )}
                       </div>
                     ))
-                  ) : (
-                    <span className="text-gray-500 italic">No tags yet</span>
                   )}
-                  <div className="flex items-center gap-2">
-                      {editingTags && (
-                        <div className="relative w-full max-w-xs">
-                        <input
-                          type="text"
-                          value={newTagName}
-                          onChange={(e) => setNewTagName(e.target.value)}
-                          placeholder="create new tag..."
-                          className="w-full border rounded-full px-3 py-1 pr-16 border-[#E48ABF] focus:border-[#a00a67] focus:outline-none" // extra right padding for button
-                        />
-                        <button
-                          onClick={handleAddNewTag}
-                          className="absolute right-2 top-1/2 -translate-y-1/2 w-6 h-6 flex items-center justify-center rounded-full text-[#E48ABF] 
-                          border-[#E48ABF] border-1 transition duration-300 ease-in-out hover:scale-110">                        
-                          +
-                        </button>
-                      </div>
-                      )}
-                      <button
-                        className="relative overflow-hidden transition duration-300 ease-in-out hover:scale-105 text-[#E48ABF]"
-                        style={{
-                          padding: "4.4px 20px 4.4px 20px",
-                          borderRadius: "36px",
-                          border: "1px solid #E48ABF",
-                          background:
-                            "linear-gradient(180deg, rgba(233, 143, 83, 0.06) 0%, rgba(233, 143, 83, 0) 100%)",
-                          fontFamily: "var(-s-font-nunito-sans), sans-serif",
-                          fontWeight: 400,
-                        }}
-                        onClick={() => setEditingTags(!editingTags)}
-                        data-glow="true"
-                      >
-                        {editingTags ? "done" : "edit tags"}
-                      </button>
-                    </div>
                 </div>
 
                 {/* Panel to manage all tags */}
-                {editingTags && tagsShown && (
+                {isEditable && editingTags && tagsShown && (
                   <div
                     className="absolute left-0 mt-2 p-4 rounded z-10"
                     style={{ width: "100%", top: "100%" }}
@@ -396,6 +359,7 @@ export default function HeaderAndBody() {
                                 ? "text-[#bb99ff] hover:text-[#996af6]"
                                 : "text-gray-600 hover:text-gray-700"
                             }`}
+                            style={{ fontFamily: "var(--font-nunito-sans), sans-serif" }}
                             onClick={() => {
                               if (!alreadyAdded) handleAddTagToEntry(tag.tag_id);
                             }}
@@ -427,45 +391,41 @@ export default function HeaderAndBody() {
             )}
           {/* save/edit */}
           {isEditable ? (
-            <>
-              {hasText && (
-                <button
-                  className="relative overflow-hidden transition duration-300 ease-in-out hover:scale-105 text-[#E98F53]"
-                  style={{
-                    padding: "4.4px 19.41px 4.81px 20px",
-                    borderRadius: "36px",
-                    border: "1px solid #E98F53",
-                    background:
-                      "linear-gradient(180deg, rgba(233, 143, 83, 0.06) 0%, rgba(233, 143, 83, 0) 100%)",
-                    fontFamily: "var(--font-nunito-sans), sans-serif",
-                    fontWeight: 400,
-                  }}
-                  onClick={handleSave}
-                  data-glow="true"
-                >
-                  save
-                </button>
-              )}
-            </>
+            <button
+              className="relative overflow-hidden transition duration-300 ease-in-out hover:scale-105 text-[#E98F53] ml-auto"
+              style={{
+                padding: "4.4px 19.41px 4.81px 20px",
+                borderRadius: "36px",
+                border: "1px solid #E98F53",
+                background:
+                  "linear-gradient(180deg, rgba(233, 143, 83, 0.06) 0%, rgba(233, 143, 83, 0) 100%)",
+                fontFamily: "var(--font-nunito-sans), sans-serif",
+                fontWeight: 400,
+                transform: "translateX(57px)",
+              }}
+              onClick={handleSave}
+              data-glow="true"
+            >
+              save
+            </button>
           ) : (
-            <>
-              <button
-                className="relative overflow-hidden transition duration-300 ease-in-out hover:scale-105 text-[#E98F53]"
-                style={{
-                  padding: "4.4px 19.41px 4.81px 20px",
-                  borderRadius: "36px",
-                  border: "1px solid #E98F53",
-                  background:
-                    "linear-gradient(180deg, rgba(233, 143, 83, 0.06) 0%, rgba(233, 143, 83, 0) 100%)",
-                  fontFamily: "var(--font-nunito-sans), sans-serif",
-                  fontWeight: 400,
-                }}
-                onClick={handleEdit}
-                data-glow="true"
-              >
-                edit
-              </button>
-            </>
+            <button
+              className="relative overflow-hidden transition duration-300 ease-in-out hover:scale-105 text-[#E98F53] ml-auto"
+              style={{
+                padding: "4.4px 19.41px 4.81px 20px",
+                borderRadius: "36px",
+                border: "1px solid #E98F53",
+                background:
+                  "linear-gradient(180deg, rgba(233, 143, 83, 0.06) 0%, rgba(233, 143, 83, 0) 100%)",
+                fontFamily: "var(--font-nunito-sans), sans-serif",
+                fontWeight: 400,
+                transform: "translateX(57px)",
+              }}
+              onClick={handleEdit}
+              data-glow="true"
+            >
+              edit
+            </button>
           )}
         </div>
       </div>
