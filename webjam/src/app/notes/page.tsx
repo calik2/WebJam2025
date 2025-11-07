@@ -3,8 +3,9 @@
 import Link from "next/link";
 import StickyNote from "./stickynote";
 import { motion } from "framer-motion";
-
 import { useState, useEffect } from "react";
+import { redirect } from "next/navigation";
+
 
 export default function NotesPage() {
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";

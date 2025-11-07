@@ -8,12 +8,13 @@ export default async function update_entry(req: NextApiRequest, res: NextApiResp
     }
 
     const supabase = createClient(req, res)
-    const { uid, date, title, description } = req.body
+    const { date, title, description } = req.body
+    const { data: { user } } = await supabase.auth.getUser();
 
     const { data, error } = await supabase
         .from('entries')
         .update([{ title, description }])
-        .eq('uid', uid)
+        .eq('uid', user?.id)
         .eq('date', date)
         .select('*')
 

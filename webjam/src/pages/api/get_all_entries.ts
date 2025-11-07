@@ -7,6 +7,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return
   }
   const supabase = createClient(req, res)
+  const { data: { user } } = await supabase.auth.getUser();
 
   const { } = req.query;
   
@@ -14,7 +15,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const { data: entry, error } = await supabase
     .from("entries")
     .select()
-    .eq('uid', 'b713dfe0-ed34-4a45-8681-bbbb1dadc662')
+    .eq('uid', user?.id)
   
   if (error) {
     res.status(500).json({ error: error.message })

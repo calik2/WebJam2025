@@ -8,7 +8,10 @@ export default async function delete_entry(req: NextApiRequest, res: NextApiResp
     }
 
     const supabase = createClient(req, res)
-    const { uid, date } = req.body
+    const { data: { user } } = await supabase.auth.getUser();
+    const uid = user?.id
+    const { date } = req.body
+
 
     const { data, error } = await supabase
         .from('entries')

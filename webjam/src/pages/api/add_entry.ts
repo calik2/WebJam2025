@@ -8,7 +8,11 @@ export default async function add_entry(req: NextApiRequest, res: NextApiRespons
     }
 
     const supabase = createClient(req, res)
-    const { uid, title, description } = req.body
+    const { title, description } = req.body
+    const { data: { user } } = await supabase.auth.getUser();
+    // console.log(session)
+    const uid = user?.id
+
 
     const { data, error } = await supabase
         .from('entries')

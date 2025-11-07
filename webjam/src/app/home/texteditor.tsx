@@ -17,7 +17,6 @@ export default function HeaderAndBody() {
       day: "numeric",
     })
     .toUpperCase();
-  const uidHardcoded = "b713dfe0-ed34-4a45-8681-bbbb1dadc662";
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
 
   const [isEditable, setIsEditable] = useState(true);
@@ -167,7 +166,6 @@ export default function HeaderAndBody() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             entry_id: entry.entry_id,
-            uid: uidHardcoded,
             date: date.toLocaleDateString(),
             title: headereditor?.getText(),
             description: content,
@@ -180,7 +178,6 @@ export default function HeaderAndBody() {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            uid: uidHardcoded,
             date: date.toLocaleDateString(),
             title: headereditor?.getText(),
             description: content,
@@ -219,7 +216,7 @@ export default function HeaderAndBody() {
     const res = await fetch(`${baseUrl}/api/tags/add_tag`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ uid: uidHardcoded, name: newTagName }),
+      body: JSON.stringify({ name: newTagName }),
     });
     const data = await res.json();
     setAllTags([...allTags, data.user]);
@@ -252,7 +249,7 @@ export default function HeaderAndBody() {
     await fetch(`${baseUrl}/api/tags/delete_tag`, {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ uid: uidHardcoded, tag_id }),
+      body: JSON.stringify({ tag_id }),
     });
     setAllTags((prev) => prev.filter((t) => t.tag_id !== tag_id));
     setEntryTags((prev) => prev.filter((t) => t.tag_id !== tag_id));
@@ -263,7 +260,7 @@ export default function HeaderAndBody() {
     const fetchEntryAndTags = async () => {
       // Fetch today's entry
       const res = await fetch(
-        `${baseUrl}/api/get_entry?uid=${uidHardcoded}&date=${today}`
+        `${baseUrl}/api/get_entry?&date=${today}`
       );
       const data = await res.json();
       setEntry(data.body);
@@ -279,7 +276,7 @@ export default function HeaderAndBody() {
 
       // Fetch all tags for user
       const resAll = await fetch(
-        `${baseUrl}/api/tags/get_all_tags?uid=${uidHardcoded}`
+        `${baseUrl}/api/tags/get_all_tags`
       );
       const dataAll = await resAll.json();
       const allTagsData = dataAll.body || [];
