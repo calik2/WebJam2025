@@ -6,9 +6,13 @@ import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Placeholder from "@tiptap/extension-placeholder";
 import { useEffect, useState } from "react";
+import Tag from "./tag";
 
-export default function PaperTiptap() {
+export default function HeaderAndBody() {
+  const date = new Date();
+
   const [isEditable, setIsEditable] = useState(true);
+  const [tagsShown, setTagsShown] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
 
   const [labels, setLabels] = useState<string[]>(() => {
@@ -19,23 +23,29 @@ export default function PaperTiptap() {
   });
 
   // Load from localStorage
-  // const savedContent =
-  //   typeof window !== "undefined" ? localStorage.getItem("paper-tiptap") : "";
-  // const initialContent =
-  //   savedContent && savedContent.trim() !== "<p></p>" ? savedContent : "";
-    // Load from localStorage
+  const [selectedTag, setSelectedTag] = useState<string | null>(() => {
+    if (typeof window !== "undefined") {
+      return localStorage.getItem("selectedTag");
+    }
+    return null;
+  });
+
+  const [newTag, setNewTag] = useState("");
   const savedContent =
-    typeof window !== "undefined" ? localStorage.getItem("paper-tiptap") : "";
+    typeof window !== "undefined" ? localStorage.getItem("body-tiptap") : "";
+  const savedHeader =
+    typeof window !== "undefined" ? localStorage.getItem("header-tiptap") : "";
   const savedDate = 
     typeof window !== "undefined" ? localStorage.getItem("paper-tiptap-date") : "";
+
   const today = new Date().toLocaleDateString();
-  
+
   const initialContent =
     savedContent && savedDate === today && savedContent.trim() !== "<p></p>" 
       ? savedContent 
       : "";
 
-  const editor = useEditor({
+  const bodyeditor = useEditor({
     extensions: [
       StarterKit,
       Placeholder.configure({
@@ -48,37 +58,74 @@ export default function PaperTiptap() {
     editorProps: {
       attributes: {
         class:
-          "ProseMirror justify-center items-center outline-none text-4xl font-[var(--font-lora)] !font-[var(--font-lora)] leading-relaxed p-10 ",
+          "ProseMirror justify-left items-left outline-none text-4xl font-[var(--font-lora)] !font-[var(--font-lora)] leading-relaxed p-10 ",
         style: `         
-          line-height: 28px;
-          color: #222;
+          color: #77777B;
+          font-family: Lora;
+          font-size 40px;
+          font-style: normal;
+          font-weight: 400;
+          line-height: 51px;
+          text-align: left;
         `,
       },
     },
     onUpdate: ({ editor }) => {
       const html = editor.getHTML();
-      localStorage.setItem("paper-tiptap", html);
+      localStorage.setItem("body-tiptap", html);
+    },
+  });
+
+  const headereditor = useEditor({
+    extensions: [
+      StarterKit,
+      Placeholder.configure({
+        placeholder: "Title your learning...",
+      }),
+    ],
+    editable: isEditable,
+    content: savedHeader && savedHeader.trim() !== "<p></p>" ? savedHeader : "",
+    immediatelyRender: false,
+    editorProps: {
+      attributes: {
+        class:
+          "ProseMirror justify-left items-left outline-none text-4xl font-[var(--font-lora)] !font-[var(--font-lora)] leading-relaxed p-10 ",
+        style: `         
+          color: #77777B;
+          font-family: Lora;
+          font-size: 25px;
+          font-style: normal;
+          font-weight: 400;
+          line-height: 51px;
+          text-align: left;
+        `,
+      },
+    },
+    onUpdate: ({ editor }) => {
+      localStorage.setItem("header-tiptap", editor.getHTML());
     },
   });
 
   useEffect(() => {
-    if (editor) {
-      editor.setEditable(isEditable);
-    }
-  }, [editor, isEditable]);
+    if (headereditor) headereditor.setEditable(isEditable);
+    if (bodyeditor) bodyeditor.setEditable(isEditable);
+  }, [isEditable, headereditor, bodyeditor]);
 
   const handleSave = async () => {
-    if (editor) {
+    if (bodyeditor) {
       const date = new Date()
 
-      const content = editor.getText();
-      localStorage.setItem("paper-tiptap", content); // save content
+      localStorage.setItem("body-tiptap", bodyeditor.getText()); // save content
+      localStorage.setItem("header-tiptap", headereditor?.getText() || ""); // save content
       localStorage.setItem("paper-tiptap-date", date.toLocaleDateString()); // save content
       setIsEditable(false); // lock editor
-      console.log("Saved content:", content);
-
-      // Write to DB
+      setTagsShown(true);
+      bodyeditor.view.dom.style.color = "#171717";
+    }
+    if (headereditor) headereditor.view.dom.style.color = "#171717";
+    // Write to DB
       const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+      const content = bodyeditor?.getText()
 
       if (isEdit)
       {
@@ -108,52 +155,130 @@ export default function PaperTiptap() {
 
       // TODO: IF IT DIDN'T SAVE -> DISPLAY SOME KIND OF MESSAGE
       // TODO: NEED TO UPDATE SO THAT AFTER LEAVING HOME AND GOING TO NOTES, IF A NOTE WAS SAVED WE WANT TO SHOW EDIT NOT JUST SAVE
-    }
   };
 
-  const handleEdit = async () => {
-    if (editor) {
-      const content = editor.getHTML();
-
-      setIsEditable(true); // unlock editor
-      console.log("edit content:", content);
-      setIsEdit(true);
-    }
+  const handleEdit = () => {
+    setIsEditable(true); // unlock editor
+    setTagsShown(false);
+    if (headereditor) headereditor.view.dom.style.color = "#77777B";
+    if (bodyeditor) bodyeditor.view.dom.style.color = "#77777B";
+    setIsEdit(true);
   };
 
-  const handleTag = () => {
-    const newLabel = prompt("Enter a tag/label for this note:");
-    if (!newLabel) return;
+  const handleAddTag = () => {
+    if (!newTag.trim()) return;
+    const updated = [...labels, newTag];
+    setLabels(updated);
+    localStorage.setItem("labels", JSON.stringify(updated));
+    setNewTag("");
+  };
 
-    const updatedLabels = [...new Set([...labels, newLabel.trim()])];
-    setLabels(updatedLabels);
-    localStorage.setItem("labels", JSON.stringify(updatedLabels));
+  // When a tag is selected
+  const handleSelectTag = (tag: string) => {
+    if (selectedTag) return; // Only allow selecting a tag if none is selected
+    setSelectedTag(tag);
+    localStorage.setItem("selectedTag", tag);
+  };
 
-    alert(`Tag "${newLabel}" saved!`);
+  const handleDeleteTag = (tag: string) => {
+    if (!selectedTag) return; // Only allow deleting a tag if a tag is selected
+
+    setSelectedTag(null);
+    localStorage.removeItem("selectedTag");
+  };
+
+  const removeTag = (tag: string) => {
+    const updated = labels.filter((t) => t !== tag);
+    setLabels(updated);
+    localStorage.setItem("labels", JSON.stringify(updated));
   };
 
   return (
     <>
-      <div className="flex justify-center items-center bg-[#f5f2e9] p-8 max-w-screen">
-        <EditorContent editor={editor} />
-      </div>
-      <div className="flex justify-center space-x-4 p-4 text-xl">
-        {isEditable ? (
-          <>
-            <button className="px-4 py-2 rounded-md" onClick={handleSave}>
-              Save
-            </button>
-            <button className="px-4 py-2 rounded-md " onClick={handleTag}>
-              Tag
-            </button>
-          </>
-        ) : (
-          <>
-            <button className="px-4 py-2 rounded-md " onClick={handleEdit}>
-              Edit
-            </button>
-          </>
-        )}
+      <div className="flex flex-col justify-center items-start min-h-screen px-8 py-4 space-y-6 rounded-lg max-w-4xl mx-auto my-10 bg-transparent">
+        <div className="text-xl text-[#A5A5A3] font-semibold font-[var(--font-sans)]">
+          {date.toLocaleDateString(undefined, {
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+          })}
+        </div>
+        <div className="w-full max-w-4xl ">
+          <EditorContent editor={bodyeditor} />
+        </div>
+        <div className="flex justify-between items-end space-y-4 w-full max-w-4xl p-4 text-xl">
+          {isEditable ? (
+            <>
+              <button className="px-4 py-2 rounded-md" onClick={handleSave}>
+                Save
+              </button>
+            </>
+          ) : (
+            <>
+              <button className="px-4 py-2 rounded-md " onClick={handleEdit}>
+                Edit
+              </button>
+            </>
+          )}
+          <div className=" flex-1 px-8 text-right">
+            {tagsShown && (
+              <div className="flex flex-col items-end space-y-3">
+                {!selectedTag ? (
+                  <>
+                    <div className="flex flex-wrap justify-center gap-3">
+                      {labels.length > 0 ? (
+                        labels.map((label, i) => (
+                          <div
+                            key={i}
+                            className="px-4 py-2  rounded-xl hover:bg-gray-300 dark:hover:bg-gray-700 transition-all"
+                          >
+                            <button onClick={() => handleSelectTag(label)}>
+                              {label}
+                            </button>
+                            <button
+                              className="ml-2 text-red-500 hover:text-red-700"
+                              onClick={() => removeTag(label)}
+                            >
+                              x
+                            </button>
+                          </div>
+                        ))
+                      ) : (
+                        <div className="text-gray-500 italic">
+                          No tags yet — create one below.
+                        </div>
+                      )}
+
+                      <div className="flex space-x-2">
+                        <input
+                          value={newTag}
+                          onChange={(e) => setNewTag(e.target.value)}
+                          placeholder="New tag incoming..."
+                          className="border rounded-md px-3 py-1"
+                        />
+                        <button
+                          onClick={handleAddTag}
+                          className="bg-lightgray-500 opacity-75 px-3 py-1 rounded-md"
+                        >
+                          Add
+                        </button>
+                      </div>
+                    </div>
+                  </>
+                ) : (
+                  <Tag
+                    label={selectedTag}
+                    onClick={() => handleDeleteTag(selectedTag)}
+                  />
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className="w-full max-w-4xl">
+          <EditorContent editor={headereditor} />
+        </div>
       </div>
     </>
   );
