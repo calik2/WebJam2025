@@ -44,14 +44,7 @@ export default function HeaderAndBody() {
     typeof window !== "undefined" ? localStorage.getItem("paper-tiptap-date") : "";
   const today = new Date().toLocaleDateString();
   
-  const savedDate = 
-    typeof window !== "undefined" ? localStorage.getItem("paper-tiptap-date") : "";
-  const today = new Date().toLocaleDateString();
-  
   const initialContent =
-    savedContent && savedDate === today && savedContent.trim() !== "<p></p>" 
-      ? savedContent 
-      : "";
     savedContent && savedDate === today && savedContent.trim() !== "<p></p>" 
       ? savedContent 
       : "";
@@ -121,10 +114,6 @@ export default function HeaderAndBody() {
     if (headereditor) headereditor.setEditable(isEditable);
     if (editor) editor.setEditable(isEditable);
   }, [isEditable, headereditor, editor]);
-
-  const handleSave = async () => {
-    if (editor) {
-      const date = new Date()
 
   const handleSave = async () => {
     if (editor) {
@@ -286,3 +275,4 @@ export default function HeaderAndBody() {
     </>
   );
 }
+  
