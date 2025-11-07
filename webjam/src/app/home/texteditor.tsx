@@ -50,7 +50,7 @@ export default function HeaderAndBody() {
     editorProps: {
       attributes: {
         class:
-          "ProseMirror justify-left items-left outline-none text-4xl font-[var(--font-lora)] !font-[var(--font-lora)] leading-relaxed p-10 ",
+          "ProseMirror justify-left items-left outline-none text-4xl font-[var(--font-lora)] !font-[var(--font-lora)] leading-relaxed py-10 pr-10 ",
         style: `         
           color: #77777B;
           font-family: Lora;
@@ -152,7 +152,7 @@ export default function HeaderAndBody() {
   return (
     <>
       <div className="flex flex-col justify-center items-start min-h-screen px-8 py-4 space-y-6 rounded-lg max-w-4xl mx-auto my-10 bg-transparent">
-        <div className="text-xl text-[#A5A5A3] font-semibold font-[var(--font-sans)]">
+        <div className="text-[12px] text-[#A5A5A3] font-normal font-['Nunito']">
           {date.toLocaleDateString(undefined, {
             year: "numeric",
             month: "long",
