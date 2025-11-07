@@ -14,7 +14,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const { data: entry, error } = await supabase
     .from("entries")
     .select()
-    .eq('uid', 'ff47c2bd-3de5-4daa-a782-655a8e1a09a8')
+    .eq('uid', 'b713dfe0-ed34-4a45-8681-bbbb1dadc662')
     .eq('date', date);  
   
   if (error) {

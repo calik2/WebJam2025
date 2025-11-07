@@ -136,7 +136,7 @@ export default function HeaderAndBody() {
             headers: {
               'Content-Type': 'application/json',
             },
-            body: JSON.stringify({uid: "ff47c2bd-3de5-4daa-a782-655a8e1a09a8", date: date.toLocaleDateString(), title: "N/A", description: content}),
+            body: JSON.stringify({uid: "b713dfe0-ed34-4a45-8681-bbbb1dadc662", date: date.toLocaleDateString(), title: "N/A", description: content}),
           }
         )
         const data = await res.json();
@@ -148,13 +148,14 @@ export default function HeaderAndBody() {
             headers: {
               'Content-Type': 'application/json',
             },
-            body: JSON.stringify({uid: "ff47c2bd-3de5-4daa-a782-655a8e1a09a8", date: date.toLocaleDateString(), title: "N/A", description: content}),
+            body: JSON.stringify({uid: "b713dfe0-ed34-4a45-8681-bbbb1dadc662", date: date.toLocaleDateString(), title: "N/A", description: content}),
           }
         )
         const data = await res.json();
       }
 
       // TODO: IF IT DIDN'T SAVE -> DISPLAY SOME KIND OF MESSAGE
+      // TODO: NEED TO UPDATE SO THAT AFTER LEAVING HOME AND GOING TO NOTES, IF A NOTE WAS SAVED WE WANT TO SHOW EDIT NOT JUST SAVE
     }
     if (headereditor) headereditor.view.dom.style.color = "#171717";
   };
