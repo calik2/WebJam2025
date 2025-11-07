@@ -1,16 +1,17 @@
 @import "tailwindcss";
 
 :root {
-  --background-image: url('/background.svg');
+  --background: radial-gradient(circle, rgba(238, 174, 202, 0.37) 34%, rgba(148, 187, 233, 0.65) 99%);
   --foreground: #171717;
   --font-sans: 'Nunito', sans-serif;
   --font-serif: 'Lora', serif;
 }
 
 .bg-custom {
-  background-image: var(--background-image);
+  background: radial-gradient(circle, rgba(238, 174, 202, 0.37) 34%, rgba(148, 187, 233, 0.65) 99%);
   background-size: cover;
   background-position: center;
+  background-attachment: fixed;
 }
 
 @theme inline {
@@ -22,24 +23,35 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: var(--background-image);
+    --background: radial-gradient(circle, rgba(238, 174, 202, 0.37) 34%, rgba(148, 187, 233, 0.65) 99%);
     --foreground: #000000;
   }
 }
 
-html {
-  background: var(--background-image);
-}
-
-body {
-  background: var(--background-image);
+html, body {
+  height: 100%;
+  min-height: 100vh;
+  overflow: hidden;
+  background: radial-gradient(
+  circle at top left,
+  rgba(255, 255, 255, 1) 0%,
+  rgba(225, 235, 255, 0.5) 70%,
+  rgba(220, 225, 255, 0.3) 100%
+);
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+  background-size: cover;
   color: var(--foreground);
   font-family: var(--font-lora), var(--font-nunito-sans), sans-serif;
 }
-
 .ProseMirror {
   outline: none;
   font-family: var(--font-lora), serif;
+  background-color: radial-gradient(
+    circle,
+    rgba(238, 174, 202, 0.37) 20%,
+    rgba(148, 187, 233, 0.65) 99%
+  );
 }
 
 .ProseMirror p.is-editor-empty:first-child::before {
